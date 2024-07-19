@@ -32,6 +32,46 @@
 //   );
 // }
 // export default App;
+
+// import React, { useState, useEffect } from "react";
+// import Home from "./Home";
+// import ImageViewer from "./ImageViewer";
+// import './tailwind.css';
+
+// function App() {
+//   const [route, setRoute] = useState(window.location.pathname);
+//   const [patientDetails, setPatientDetails] = useState(null);
+
+//   useEffect(() => {
+//     const handlePopState = () => {
+//       setRoute(window.location.pathname);
+//     };
+
+//     window.addEventListener("popstate", handlePopState);
+
+//     return () => {
+//       window.removeEventListener("popstate", handlePopState);
+//     };
+//   }, []);
+
+//   const navigate = (path, details = null) => {
+//     window.history.pushState({}, "", path);
+//     setRoute(path);
+//     if (details) {
+//       setPatientDetails(details); // Update the patient details
+//     }
+//   };
+//   return (
+//     <div className="App rounded-3xl">
+//         {route === "/" && <Home navigate={navigate} />}
+//         {route === "/annotate" && <ImageViewer patientDetails={patientDetails}/>}
+//       </div>
+//   );
+// }
+
+// export default App;
+
+
 import React, { useState, useEffect } from "react";
 import Home from "./Home";
 import ImageViewer from "./ImageViewer";
@@ -42,6 +82,11 @@ function App() {
   const [patientDetails, setPatientDetails] = useState(null);
 
   useEffect(() => {
+    const savedDetails = localStorage.getItem('patientDetails');
+    if (savedDetails) {
+      setPatientDetails(JSON.parse(savedDetails));
+    }
+
     const handlePopState = () => {
       setRoute(window.location.pathname);
     };
@@ -57,14 +102,16 @@ function App() {
     window.history.pushState({}, "", path);
     setRoute(path);
     if (details) {
-      setPatientDetails(details); // Update the patient details
+      setPatientDetails(details);
+      localStorage.setItem('patientDetails', JSON.stringify(details));
     }
   };
+
   return (
-    <div className="App">
-        {route === "/" && <Home navigate={navigate} />}
-        {route === "/annotate" && <ImageViewer patientDetails={patientDetails}/>}
-      </div>
+    <div className="App rounded-3xl">
+      {route === "/" && <Home navigate={navigate} />}
+      {route === "/annotate" && <ImageViewer patientDetails={patientDetails} />}
+    </div>
   );
 }
 

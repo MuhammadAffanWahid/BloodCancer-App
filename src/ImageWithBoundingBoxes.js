@@ -929,6 +929,509 @@
 
 // export default ImageWithBoundingBoxes;
 
+// import React, { useEffect, useRef, useState } from 'react';
+// import './ImageWithBoundingBoxes.css'; // Import CSS file for styles
+
+// const WIDTH = 1200; // New width
+// const HEIGHT = 672; // New height
+// const BALANCER = 640; // Constant for scaling
+
+// const colorDictionary = {
+//   Lymphocyte: '#FF5733',
+//   Basophil: '#FFBF00',
+//   Metamylocyte: '#33FF57',
+//   Promyelocyte: '#3399FF',
+//   Monocyte: '#FF33A8',
+//   Abnormal: '#FFD700',
+//   Myelocyte: '#FF8C00',
+//   Eosinophil: '#9400D3',
+//   Promonocyte: '#FF4500',
+//   Atypical: '#00FF7F',
+//   Monoblast: '#20B2AA',
+//   Neutrophil: '#1E90FF',
+//   Lymphoblast: '#FF69B4',
+//   Myeloblast: '#ADFF2F',
+//   None:'blue',
+// };
+
+// const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
+//   const canvasRef = useRef(null);
+//   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
+//   const [labels, setLabels] = useState(boxes.map((box) => box.Prediction));
+
+//   const handleLabelChange = (event) => {
+//     const newLabels = [...labels];
+//     newLabels[selectedBoxIndex] = event.target.value;
+//     setLabels(newLabels);
+//     setSelectedBoxIndex(null);
+//   };
+
+//   const handleClick = (event) => {
+//     const canvas = canvasRef.current;
+//     const rect = canvas.getBoundingClientRect();
+//     const scaleX = canvas.width / rect.width;
+//     const scaleY = canvas.height / rect.height;
+//     const x = (event.clientX - rect.left) * scaleX;
+//     const y = (event.clientY - rect.top) * scaleY;
+
+//     boxes.forEach((box, index) => {
+//       if (
+//         x > (box.x_min * WIDTH) / BALANCER &&
+//         x < (box.x_max * WIDTH) / BALANCER &&
+//         y > (box.y_min * HEIGHT) / BALANCER &&
+//         y < (box.y_max * HEIGHT) / BALANCER 
+//       ) {
+//         setSelectedBoxIndex(index);
+//       }
+//     });
+//   };
+
+//   const drawRoundedRect = (context, x, y, width, height, radius, color) => {
+//     context.fillStyle = color;
+//     context.beginPath();
+//     context.moveTo(x + radius, y);
+//     context.lineTo(x + width - radius, y);
+//     context.quadraticCurveTo(x + width, y, x + width, y + radius);
+//     context.lineTo(x + width, y + height - radius);
+//     context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+//     context.lineTo(x + radius, y + height);
+//     context.quadraticCurveTo(x, y + height, x, y + height - radius);
+//     context.lineTo(x, y + radius);
+//     context.quadraticCurveTo(x, y, x + radius, y);
+//     context.closePath();
+//     context.fill();
+//   };
+
+//   useEffect(() => {
+//     const canvas = canvasRef.current;
+//     const context = canvas.getContext('2d');
+//     const image = new Image();
+
+//     image.src = src;
+//     image.onload = () => {
+//       canvas.width = WIDTH; // Set new width
+//       canvas.height = HEIGHT; // Set new height
+//       context.drawImage(image, 0, 0, WIDTH, HEIGHT); // Draw image with new dimensions
+//       boxes.forEach((box, index) => {
+//         const color = colorDictionary[labels[index]] || 'red';
+
+//         // Draw bounding box
+//         context.strokeStyle = color;
+//         context.lineWidth = 1;
+//         context.strokeRect(
+//           (box.x_min * WIDTH) / BALANCER,
+//           (box.y_min * HEIGHT) / BALANCER,
+//           ((box.x_max - box.x_min) * WIDTH) / BALANCER,
+//           ((box.y_max - box.y_min) * HEIGHT) / BALANCER
+//         );
+
+//         // Draw background for label
+//         const labelWidth = context.measureText(labels[index]).width;
+//         const labelHeight = 16;
+//         const padding = 5;
+//         const xPos = (box.x_min * WIDTH) / BALANCER - 4;
+//         const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//           (box.y_max * HEIGHT) / BALANCER : // Place below the box
+//           (box.y_min * HEIGHT) / BALANCER - 16; // Place above the box
+
+//         drawRoundedRect(context, xPos, yPos, labelWidth + padding * 4, labelHeight, 5, color);
+
+//         // Draw label
+//         context.font = '12px Arial';
+//         context.fillStyle = 'black'; // White text color
+//         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
+//       });
+//     };
+
+//     canvas.addEventListener('click', handleClick);
+
+//     return () => {
+//       canvas.removeEventListener('click', handleClick);
+//     };
+//   }, [src, boxes, labels]);
+
+//   return (
+//     <div className="image-container">
+//       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
+//       {selectedBoxIndex !== null && (
+//         <select
+//           value={labels[selectedBoxIndex]}
+//           onChange={handleLabelChange}
+//           className="label-dropdown rounded no-focus-outline"
+//           style={{
+//             top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//               (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : // Place below the box
+//               (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`, // Place above the box
+//             left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 6}px`,
+//             position: 'absolute',
+//             fontSize: '12px',
+//             borderRadius: '3px',
+//             backgroundColor: colorDictionary[labels[selectedBoxIndex]] || '#f26161',
+//             color: 'black',
+//             cursor: 'pointer',
+//             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+//             zIndex: 10,
+//           }}
+//         >
+//           {Object.keys(colorDictionary).map((label) => (
+//             <option key={label} value={label}>
+//               {label}
+//             </option>
+//           ))}
+//         </select>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ImageWithBoundingBoxes;
+
+
+
+
+// import React, { useEffect, useRef, useState } from 'react';
+// import './ImageWithBoundingBoxes.css'; // Import CSS file for styles
+
+// const WIDTH = 1200; // New width
+// const HEIGHT = 672; // New height
+// const BALANCER = 640; // Constant for scaling
+
+// const colorDictionary = {
+//   Lymphocyte: '#FF5733',
+//   Basophil: '#FFBF00',
+//   Metamylocyte: '#33FF57',
+//   Promyelocyte: '#3399FF',
+//   Monocyte: '#FF33A8',
+//   Abnormal: '#FFD700',
+//   Myelocyte: '#FF8C00',
+//   Eosinophil: '#9400D3',
+//   Promonocyte: '#FF4500',
+//   Atypical: '#00FF7F',
+//   Monoblast: '#20B2AA',
+//   Neutrophil: '#1E90FF',
+//   Lymphoblast: '#FF69B4',
+//   Myeloblast: '#ADFF2F',
+// };
+
+// const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
+//   const canvasRef = useRef(null);
+//   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
+//   const [labels, setLabels] = useState(boxes.map((box) => box.Prediction));
+
+//   const handleLabelChange = (event) => {
+//     const newLabels = [...labels];
+//     newLabels[selectedBoxIndex] = event.target.value;
+//     setLabels(newLabels);
+//     setSelectedBoxIndex(null);
+//     // Save labels to local storage
+//     localStorage.setItem('labels', JSON.stringify(newLabels));
+//   };
+
+//   const handleClick = (event) => {
+//     const canvas = canvasRef.current;
+//     const rect = canvas.getBoundingClientRect();
+//     const scaleX = canvas.width / rect.width;
+//     const scaleY = canvas.height / rect.height;
+//     const x = (event.clientX - rect.left) * scaleX;
+//     const y = (event.clientY - rect.top) * scaleY;
+
+//     boxes.forEach((box, index) => {
+//       if (
+//         x > (box.x_min * WIDTH) / BALANCER &&
+//         x < (box.x_max * WIDTH) / BALANCER &&
+//         y > (box.y_min * HEIGHT) / BALANCER &&
+//         y < (box.y_max * HEIGHT) / BALANCER 
+//       ) {
+//         setSelectedBoxIndex(index);
+//       }
+//     });
+//   };
+
+//   const drawRoundedRect = (context, x, y, width, height, radius, color) => {
+//     context.fillStyle = color;
+//     context.beginPath();
+//     context.moveTo(x + radius, y);
+//     context.lineTo(x + width - radius, y);
+//     context.quadraticCurveTo(x + width, y, x + width, y + radius);
+//     context.lineTo(x + width, y + height - radius);
+//     context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+//     context.lineTo(x + radius, y + height);
+//     context.quadraticCurveTo(x, y + height, x, y + height - radius);
+//     context.lineTo(x, y + radius);
+//     context.quadraticCurveTo(x, y, x + radius, y);
+//     context.closePath();
+//     context.fill();
+//   };
+
+//   useEffect(() => {
+//     // Load labels from local storage
+//     const savedLabels = JSON.parse(localStorage.getItem('labels'));
+//     if (savedLabels) {
+//       setLabels(savedLabels);
+//     }
+
+//     const canvas = canvasRef.current;
+//     const context = canvas.getContext('2d');
+//     const image = new Image();
+
+//     image.src = src;
+//     image.onload = () => {
+//       canvas.width = WIDTH; // Set new width
+//       canvas.height = HEIGHT; // Set new height
+//       context.drawImage(image, 0, 0, WIDTH, HEIGHT); // Draw image with new dimensions
+//       boxes.forEach((box, index) => {
+//         const color = colorDictionary[labels[index]] || 'red';
+
+//         // Draw bounding box
+//         context.strokeStyle = color;
+//         context.lineWidth = 1;
+//         context.strokeRect(
+//           (box.x_min * WIDTH) / BALANCER,
+//           (box.y_min * HEIGHT) / BALANCER,
+//           ((box.x_max - box.x_min) * WIDTH) / BALANCER,
+//           ((box.y_max - box.y_min) * HEIGHT) / BALANCER
+//         );
+
+//         // Draw background for label
+//         const labelWidth = context.measureText(labels[index]).width;
+//         const labelHeight = 16;
+//         const padding = 5;
+//         const xPos = (box.x_min * WIDTH) / BALANCER - 4;
+//         const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//           (box.y_max * HEIGHT) / BALANCER : // Place below the box
+//           (box.y_min * HEIGHT) / BALANCER - 16; // Place above the box
+
+//         drawRoundedRect(context, xPos, yPos, labelWidth + padding * 4, labelHeight, 5, color);
+
+//         // Draw label
+//         context.font = '12px Arial';
+//         context.fillStyle = 'black'; // White text color
+//         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
+//       });
+//     };
+
+//     canvas.addEventListener('click', handleClick);
+
+//     return () => {
+//       canvas.removeEventListener('click', handleClick);
+//     };
+//   }, [src, boxes, labels]);
+
+//   return (
+//     <div className="image-container">
+//       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
+//       {selectedBoxIndex !== null && (
+//         <select
+//           value={labels[selectedBoxIndex]}
+//           onChange={handleLabelChange}
+//           className="label-dropdown rounded no-focus-outline"
+//           style={{
+//             top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//               (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : // Place below the box
+//               (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`, // Place above the box
+//             left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 6}px`,
+//             position: 'absolute',
+//             fontSize: '12px',
+//             borderRadius: '3px',
+//             backgroundColor: colorDictionary[labels[selectedBoxIndex]] || '#f26161',
+//             color: 'black',
+//             cursor: 'pointer',
+//             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+//             zIndex: 10,
+//           }}
+//         >
+//           {Object.keys(colorDictionary).map((label) => (
+//             <option key={label} value={label}>
+//               {label}
+//             </option>
+//           ))}
+//         </select>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ImageWithBoundingBoxes;
+
+
+
+
+
+
+
+
+// import React, { useEffect, useRef, useState } from 'react';
+// import './ImageWithBoundingBoxes.css'; // Import CSS file for styles
+
+// const WIDTH = 1200; // New width
+// const HEIGHT = 672; // New height
+// const BALANCER = 640; // Constant for scaling
+
+// const colorDictionary = {
+//   Lymphocyte: '#FF5733',
+//   Basophil: '#FFBF00',
+//   Metamylocyte: '#33FF57',
+//   Promyelocyte: '#3399FF',
+//   Monocyte: '#FF33A8',
+//   Abnormal: '#FFD700',
+//   Myelocyte: '#FF8C00',
+//   Eosinophil: '#9400D3',
+//   Promonocyte: '#FF4500',
+//   Atypical: '#00FF7F',
+//   Monoblast: '#20B2AA',
+//   Neutrophil: '#1E90FF',
+//   Lymphoblast: '#FF69B4',
+//   Myeloblast: '#ADFF2F',
+//   None:'blue'
+// };
+
+// const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
+//   const canvasRef = useRef(null);
+//   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
+//   const [labels, setLabels] = useState(boxes.map((box) => box.Prediction));
+
+//   const handleLabelChange = (event) => {
+//     const newLabels = [...labels];
+//     newLabels[selectedBoxIndex] = event.target.value;
+//     setLabels(newLabels);
+//     setSelectedBoxIndex(null);
+//     // Save labels to local storage
+//     localStorage.setItem('labels', JSON.stringify(newLabels));
+//   };
+
+//   const handleClick = (event) => {
+//     const canvas = canvasRef.current;
+//     const rect = canvas.getBoundingClientRect();
+//     const scaleX = canvas.width / rect.width;
+//     const scaleY = canvas.height / rect.height;
+//     const x = (event.clientX - rect.left) * scaleX;
+//     const y = (event.clientY - rect.top) * scaleY;
+
+//     boxes.forEach((box, index) => {
+//       if (
+//         x > (box.x_min * WIDTH) / BALANCER &&
+//         x < (box.x_max * WIDTH) / BALANCER &&
+//         y > (box.y_min * HEIGHT) / BALANCER &&
+//         y < (box.y_max * HEIGHT) / BALANCER 
+//       ) {
+//         setSelectedBoxIndex(index);
+//       }
+//     });
+//   };
+
+//   const drawRoundedRect = (context, x, y, width, height, radius, color) => {
+//     context.fillStyle = color;
+//     context.beginPath();
+//     context.moveTo(x + radius, y);
+//     context.lineTo(x + width - radius, y);
+//     context.quadraticCurveTo(x + width, y, x + width, y + radius);
+//     context.lineTo(x + width, y + height - radius);
+//     context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+//     context.lineTo(x + radius, y + height);
+//     context.quadraticCurveTo(x, y + height, x, y + height - radius);
+//     context.lineTo(x, y + radius);
+//     context.quadraticCurveTo(x, y, x + radius, y);
+//     context.closePath();
+//     context.fill();
+//   };
+
+//   useEffect(() => {
+//     // Load labels from local storage
+//     const savedLabels = JSON.parse(localStorage.getItem('labels'));
+//     if (savedLabels) {
+//       setLabels(savedLabels);
+//     }
+
+//     const canvas = canvasRef.current;
+//     const context = canvas.getContext('2d');
+//     const image = new Image();
+
+//     image.src = src;
+//     image.onload = () => {
+//       canvas.width = WIDTH; // Set new width
+//       canvas.height = HEIGHT; // Set new height
+//       context.drawImage(image, 0, 0, WIDTH, HEIGHT); // Draw image with new dimensions
+//       boxes.forEach((box, index) => {
+//         const color = colorDictionary[labels[index]] || 'red';
+
+//         // Draw bounding box
+//         context.strokeStyle = color;
+//         context.lineWidth = 1;
+//         context.strokeRect(
+//           (box.x_min * WIDTH) / BALANCER,
+//           (box.y_min * HEIGHT) / BALANCER,
+//           ((box.x_max - box.x_min) * WIDTH) / BALANCER,
+//           ((box.y_max - box.y_min) * HEIGHT) / BALANCER
+//         );
+
+//         // Draw background for label
+//         const labelWidth = context.measureText(labels[index]).width;
+//         const labelHeight = 16;
+//         const padding = 5;
+//         const xPos = (box.x_min * WIDTH) / BALANCER - 4;
+//         const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//           (box.y_max * HEIGHT) / BALANCER : // Place below the box
+//           (box.y_min * HEIGHT) / BALANCER - 16; // Place above the box
+
+//         // drawRoundedRect(context, xPos, yPos, 65, labelHeight, 5, color);
+//         drawRoundedRect(context, xPos, yPos, Math.max(labelWidth + padding * 4,75) , labelHeight, 5, color);
+
+//         // Draw label
+//         context.font = '12px Arial';
+//         context.fillStyle = 'black'; // White text color
+//         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
+//       });
+//     };
+
+//     canvas.addEventListener('click', handleClick);
+
+//     return () => {
+//       canvas.removeEventListener('click', handleClick);
+//     };
+//   }, [src, boxes, labels]);
+
+//   return (
+//     <div className="image-container">
+//       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
+//       {selectedBoxIndex !== null && (
+//         <select
+//           value={labels[selectedBoxIndex]}
+//           onChange={handleLabelChange}
+//           className="label-dropdown rounded no-focus-outline"
+//           style={{
+//             top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
+//               (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : // Place below the box
+//               (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`, // Place above the box
+//             left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 6}px`,
+//             position: 'absolute',
+//             fontSize: '12px',
+//             borderRadius: '3px',
+//             backgroundColor: colorDictionary[labels[selectedBoxIndex]] || '#f26161',
+//             color: 'black',
+//             cursor: 'pointer',
+//             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+//             zIndex: 10,
+//           }}
+//         >
+//           {Object.keys(colorDictionary).map((label) => (
+//             <option key={label} value={label}>
+//               {label}
+//             </option>
+//           ))}
+//         </select>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ImageWithBoundingBoxes;
+
+
+
+
+
+
+
 import React, { useEffect, useRef, useState } from 'react';
 import './ImageWithBoundingBoxes.css'; // Import CSS file for styles
 
@@ -951,18 +1454,23 @@ const colorDictionary = {
   Neutrophil: '#1E90FF',
   Lymphoblast: '#FF69B4',
   Myeloblast: '#ADFF2F',
+  None: '#808080',
 };
 
 const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   const canvasRef = useRef(null);
   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
-  const [labels, setLabels] = useState(boxes.map((box) => box.Prediction));
+  const [labels, setLabels] = useState(() =>
+    boxes.map((box) => box.Prediction)
+  );
 
   const handleLabelChange = (event) => {
     const newLabels = [...labels];
     newLabels[selectedBoxIndex] = event.target.value;
     setLabels(newLabels);
     setSelectedBoxIndex(null);
+    // Save labels to local storage
+    localStorage.setItem(`${src}-labels`, JSON.stringify(newLabels));
   };
 
   const handleClick = (event) => {
@@ -978,7 +1486,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
         x > (box.x_min * WIDTH) / BALANCER &&
         x < (box.x_max * WIDTH) / BALANCER &&
         y > (box.y_min * HEIGHT) / BALANCER &&
-        y < (box.y_max * HEIGHT) / BALANCER 
+        y < (box.y_max * HEIGHT) / BALANCER
       ) {
         setSelectedBoxIndex(index);
       }
@@ -1002,6 +1510,12 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   };
 
   useEffect(() => {
+    // Load labels from local storage
+    const savedLabels = JSON.parse(localStorage.getItem(`${src}-labels`));
+    if (savedLabels) {
+      setLabels(savedLabels);
+    }
+
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     const image = new Image();
@@ -1027,17 +1541,17 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
         // Draw background for label
         const labelWidth = context.measureText(labels[index]).width;
         const labelHeight = 16;
-        const padding = 4;
+        const padding = 5;
         const xPos = (box.x_min * WIDTH) / BALANCER - 4;
         const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
           (box.y_max * HEIGHT) / BALANCER : // Place below the box
-          (box.y_min * HEIGHT) / BALANCER - 20; // Place above the box
+          (box.y_min * HEIGHT) / BALANCER - 16; // Place above the box
 
         drawRoundedRect(context, xPos, yPos, labelWidth + padding * 4, labelHeight, 5, color);
 
         // Draw label
         context.font = '12px Arial';
-        context.fillStyle = 'white'; // White text color
+        context.fillStyle = 'black'; // White text color
         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
       });
     };
@@ -1056,12 +1570,20 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
         <select
           value={labels[selectedBoxIndex]}
           onChange={handleLabelChange}
-          className="label-dropdown"
+          className="label-dropdown rounded no-focus-outline"
           style={{
             top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
               (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : // Place below the box
-              (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 20}px`, // Place above the box
-            left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 4}px`,
+              (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`, // Place above the box
+            left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 6}px`,
+            position: 'absolute',
+            fontSize: '12px',
+            borderRadius: '3px',
+            backgroundColor: colorDictionary[labels[selectedBoxIndex]] || '#f26161',
+            color: 'black',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+            zIndex: 10,
           }}
         >
           {Object.keys(colorDictionary).map((label) => (
@@ -1076,10 +1598,6 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
 };
 
 export default ImageWithBoundingBoxes;
-
-
-
-
 
 
 

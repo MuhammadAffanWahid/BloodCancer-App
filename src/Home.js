@@ -26,7 +26,7 @@ const Home = ({ navigate }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-200 to-purple-400">
+    <div className="min-h-screen flex w-screen items-center justify-center bg-gradient-to-r from-purple-200 to-purple-400">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold mb-6 text-center text-purple-700">Patient Details</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
