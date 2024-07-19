@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ImageWithBoundingBoxes.css'; // Import CSS file for styles
 
-const WIDTH = 1200; // New width
-const HEIGHT = 672; // New height
+const WIDTH = 1200; // Display width
+const HEIGHT = 672; // Display height
 const BALANCER = 640; // Constant for scaling
 
 const bgColorDictionary = {
@@ -24,28 +24,28 @@ const bgColorDictionary = {
 };
 
 const textColorDictionary = {
-  Lymphocyte: '#000', // Background: #FF5733 (dark)
-  Basophil: '#000', // Background: #FFBF00 (dark)
-  Metamylocyte: '#000', // Background: #33FF57 (dark)
-  Promyelocyte: '#000', // Background: #3399FF (dark)
-  Monocyte: '#000', // Background: #FF33A8 (light)
-  Abnormal: '#000', // Background: #FFD700 (dark)
-  Myelocyte: '#000', // Background: #FF8C00 (light)
-  Eosinophil: '#FFF', // Background: #9400D3 (light)
-  Promonocyte: '#000', // Background: #FF4500 (light)
-  Atypical: '#000', // Background: #00FF7F (dark)
-  Monoblast: '#000', // Background: #20B2AA (dark)
-  Neutrophil: '#000', // Background: #1E90FF (light)
-  Lymphoblast: '#000', // Background: #FF69B4 (dark)
-  Myeloblast: '#000', // Background: #ADFF2F (dark)
-  None:'#FFF', // Background: #808080 (dark)
+  Lymphocyte: '#000',
+  Basophil: '#000',
+  Metamylocyte: '#000',
+  Promyelocyte: '#000',
+  Monocyte: '#000',
+  Abnormal: '#000',
+  Myelocyte: '#000',
+  Eosinophil: '#FFF',
+  Promonocyte: '#000',
+  Atypical: '#000',
+  Monoblast: '#000',
+  Neutrophil: '#000',
+  Lymphoblast: '#000',
+  Myeloblast: '#000',
+  None:'#FFF',
 };
-
 
 const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   const canvasRef = useRef(null);
   const [selectedBoxIndex, setSelectedBoxIndex] = useState(null);
   const [labels, setLabels] = useState([]);
+  const imageRef = useRef(new Image()); // Image reference to reuse the same image
 
   // Load labels from local storage
   const loadLabels = () => {
@@ -70,25 +70,35 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
     setSelectedBoxIndex(null);
   };
 
+
   const handleClick = (event) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const x = (event.clientX - rect.left) * scaleX;
-    const y = (event.clientY - rect.top) * scaleY;
-
+  
+    // Adjust for device pixel ratio scaling
+    const x = (event.clientX - rect.left) * scaleX / window.devicePixelRatio;
+    const y = (event.clientY - rect.top) * scaleY / window.devicePixelRatio;
+  
     boxes.forEach((box, index) => {
+      const boxXMin = (box.x_min * WIDTH) / BALANCER;
+      const boxYMin = (box.y_min * HEIGHT) / BALANCER;
+      const boxXMax = (box.x_max * WIDTH) / BALANCER;
+      const boxYMax = (box.y_max * HEIGHT) / BALANCER;
+  
       if (
-        x > (box.x_min * WIDTH) / BALANCER &&
-        x < (box.x_max * WIDTH) / BALANCER &&
-        y > (box.y_min * HEIGHT) / BALANCER &&
-        y < (box.y_max * HEIGHT) / BALANCER
+        x > boxXMin &&
+        x < boxXMax &&
+        y > boxYMin &&
+        y < boxYMax
       ) {
         setSelectedBoxIndex(index);
       }
     });
   };
+
+  
 
   const drawRoundedRect = (context, x, y, width, height, radius, color) => {
     context.fillStyle = color;
@@ -111,16 +121,18 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
 
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    const image = new Image();
+    const image = imageRef.current;
 
-    image.src = src;
-    image.onload = () => {
-      canvas.width = WIDTH; // Set new width
-      canvas.height = HEIGHT; // Set new height
-      context.drawImage(image, 0, 0, WIDTH, HEIGHT); // Draw image with new dimensions
+    // Clear the canvas and draw the image and boxes
+    const drawImageAndBoxes = () => {
+      // context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+      // Draw image with correct dimensions
+      context.drawImage(image, 0, 0, WIDTH, HEIGHT);
+
       boxes.forEach((box, index) => {
         const color = bgColorDictionary[labels[index]] || 'red';
-
+        const boxWidth = ((box.x_max - box.x_min) * WIDTH) / BALANCER;
         // Draw bounding box
         context.strokeStyle = color;
         context.lineWidth = 1;
@@ -136,17 +148,27 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
         const labelHeight = 16;
         const padding = 5;
         const xPos = (box.x_min * WIDTH) / BALANCER - 4;
-        const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
-          (box.y_max * HEIGHT) / BALANCER : // Place below the box
-          (box.y_min * HEIGHT) / BALANCER - 16; // Place above the box
+        const yPos = (box.y_min * HEIGHT) / BALANCER < 20 ? 
+          (box.y_max * HEIGHT) / BALANCER : 
+          (box.y_min * HEIGHT) / BALANCER - 16;
 
-        drawRoundedRect(context, xPos, yPos,Math.max(labelWidth + padding * 4,80) , labelHeight, 5, color);
+        drawRoundedRect(context, xPos, yPos, Math.max(labelWidth + padding * 4, boxWidth+10), labelHeight, 5, color);
 
         // Draw label
         context.font = '12px Arial';
-        context.fillStyle = textColorDictionary[labels[index]] // White text color
+        context.fillStyle = textColorDictionary[labels[index]];
         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
       });
+    };
+
+    image.src = src;
+    image.onload = () => {
+      canvas.width = WIDTH * window.devicePixelRatio;
+      canvas.height = HEIGHT * window.devicePixelRatio;
+      canvas.style.width = `${WIDTH}px`;
+      canvas.style.height = `${HEIGHT}px`;
+      context.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawImageAndBoxes();
     };
 
     canvas.addEventListener('click', handleClick);
@@ -157,7 +179,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   }, [src, boxes, labels]);
 
   return (
-    <div className="image-container no-focus-outline">
+    <div className="image-container">
       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
       {selectedBoxIndex !== null && (
         <select
@@ -165,9 +187,9 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
           onChange={handleLabelChange}
           className="label-dropdown rounded no-focus-outline"
           style={{
-            top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? // Check if box is at the top
-              (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : // Place below the box
-              (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`, // Place above the box
+            top: `${(boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER < 20 ? 
+              (boxes[selectedBoxIndex].y_max * HEIGHT) / BALANCER : 
+              (boxes[selectedBoxIndex].y_min * HEIGHT) / BALANCER - 16}px`,
             left: `${(boxes[selectedBoxIndex].x_min * WIDTH) / BALANCER - 6}px`,
             position: 'absolute',
             fontSize: '12px',
@@ -176,7 +198,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
             color: textColorDictionary[labels[selectedBoxIndex]],
             cursor: 'pointer',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-            zIndex: 10,
+            zIndex: 100,
           }}
         >
           {Object.keys(bgColorDictionary).map((label) => (

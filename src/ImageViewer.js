@@ -89,10 +89,6 @@ const ImageViewer = ({ patientDetails }) => {
             <h1 className="text-xl font-bold text-violet-500">Image Name</h1>
             <h2 className="text-lg">{currentImage.name}</h2>
           </div>
-          <div className="flex flex-col items-center">
-            <h1 className="text-xl font-bold text-violet-500">Image Name</h1>
-            <h2 className="text-lg">{currentImage.name}</h2>
-          </div>
         </div>
         <div className="flex justify-center">
           <div className="flex -ml-2 mr-2 w-min items-center mb-10 justify-center">
