@@ -152,7 +152,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
           (box.y_max * HEIGHT) / BALANCER : 
           (box.y_min * HEIGHT) / BALANCER - 16;
 
-        drawRoundedRect(context, xPos, yPos, Math.max(labelWidth + padding * 4, boxWidth+10), labelHeight, 5, color);
+        drawRoundedRect(context, xPos, yPos, Math.max(1.34*labelWidth, boxWidth+10), labelHeight, 5, color);
 
         // Draw label
         context.font = '12px Arial';
