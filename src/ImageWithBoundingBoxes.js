@@ -5,7 +5,7 @@ const WIDTH = 1200; // New width
 const HEIGHT = 672; // New height
 const BALANCER = 640; // Constant for scaling
 
-const colorDictionary = {
+const bgColorDictionary = {
   Lymphocyte: '#FF5733',
   Basophil: '#FFBF00',
   Metamylocyte: '#33FF57',
@@ -22,6 +22,25 @@ const colorDictionary = {
   Myeloblast: '#ADFF2F',
   None:'#808080',
 };
+
+const textColorDictionary = {
+  Lymphocyte: '#000', // Background: #FF5733 (dark)
+  Basophil: '#000', // Background: #FFBF00 (dark)
+  Metamylocyte: '#000', // Background: #33FF57 (dark)
+  Promyelocyte: '#000', // Background: #3399FF (dark)
+  Monocyte: '#000', // Background: #FF33A8 (light)
+  Abnormal: '#000', // Background: #FFD700 (dark)
+  Myelocyte: '#000', // Background: #FF8C00 (light)
+  Eosinophil: '#FFF', // Background: #9400D3 (light)
+  Promonocyte: '#000', // Background: #FF4500 (light)
+  Atypical: '#000', // Background: #00FF7F (dark)
+  Monoblast: '#000', // Background: #20B2AA (dark)
+  Neutrophil: '#000', // Background: #1E90FF (light)
+  Lymphoblast: '#000', // Background: #FF69B4 (dark)
+  Myeloblast: '#000', // Background: #ADFF2F (dark)
+  None:'#FFF', // Background: #808080 (dark)
+};
+
 
 const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   const canvasRef = useRef(null);
@@ -100,7 +119,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
       canvas.height = HEIGHT; // Set new height
       context.drawImage(image, 0, 0, WIDTH, HEIGHT); // Draw image with new dimensions
       boxes.forEach((box, index) => {
-        const color = colorDictionary[labels[index]] || 'red';
+        const color = bgColorDictionary[labels[index]] || 'red';
 
         // Draw bounding box
         context.strokeStyle = color;
@@ -125,7 +144,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
 
         // Draw label
         context.font = '12px Arial';
-        context.fillStyle = 'black'; // White text color
+        context.fillStyle = textColorDictionary[labels[index]] // White text color
         context.fillText(labels[index], xPos + padding, yPos + labelHeight - 4);
       });
     };
@@ -138,7 +157,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   }, [src, boxes, labels]);
 
   return (
-    <div className="image-container">
+    <div className="image-container ">
       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
       {selectedBoxIndex !== null && (
         <select
@@ -153,14 +172,14 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
             position: 'absolute',
             fontSize: '12px',
             borderRadius: '3px',
-            backgroundColor: colorDictionary[labels[selectedBoxIndex]] || '#f26161',
-            color: 'black',
+            backgroundColor: bgColorDictionary[labels[selectedBoxIndex]] || '#f26161',
+            color: textColorDictionary[labels[selectedBoxIndex]],
             cursor: 'pointer',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
             zIndex: 10,
           }}
         >
-          {Object.keys(colorDictionary).map((label) => (
+          {Object.keys(bgColorDictionary).map((label) => (
             <option key={label} value={label}>
               {label}
             </option>

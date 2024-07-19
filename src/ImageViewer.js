@@ -66,7 +66,7 @@ const ImageViewer = ({ patientDetails }) => {
   return (
     <div className="flex justify-center rounded-xl">
       <div className="bg-white rounded-xl shadow-2xl border border-gray-200 px-10 pb-0 pt-2">
-        <div className="flex justify-around w-full ">
+        <div className="flex justify-around w-full mb-1">
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold text-violet-500">Patient Name</h1>
             <h2 className="text-lg">{patientDetails?.patientName}</h2>
