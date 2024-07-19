@@ -157,7 +157,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
   }, [src, boxes, labels]);
 
   return (
-    <div className="image-container ">
+    <div className="image-container no-focus-outline">
       <canvas ref={canvasRef} alt={alt} className="rounded-xl mb-5 bounding-box-canvas" />
       {selectedBoxIndex !== null && (
         <select

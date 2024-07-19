@@ -65,7 +65,7 @@ const ImageViewer = ({ patientDetails }) => {
 
   return (
     <div className="flex justify-center rounded-xl">
-      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 px-10 pb-0 pt-2">
+      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 px-6 pb-0 pt-2">
         <div className="flex justify-around w-full mb-1">
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold text-violet-500">Patient Name</h1>
@@ -89,20 +89,48 @@ const ImageViewer = ({ patientDetails }) => {
             <h1 className="text-xl font-bold text-violet-500">Image Name</h1>
             <h2 className="text-lg">{currentImage.name}</h2>
           </div>
+          <div className="flex flex-col items-center">
+            <h1 className="text-xl font-bold text-violet-500">Image Name</h1>
+            <h2 className="text-lg">{currentImage.name}</h2>
+          </div>
         </div>
-        <div className="flex flex-row items-center justify-between w-full">
-          <div className="w-full">
-            <ImageWithBoundingBoxes
-              src={currentImage.src}
-              alt={currentImage.name}
-              boxes={boxesForCurrentImage.map((box) => ({
-                Prediction: box.Prediction || 'Unknown', // Ensure a default label
-                x_min: parseInt(box.x_min, 10),
-                y_min: parseInt(box.y_min, 10),
-                x_max: parseInt(box.x_max, 10),
-                y_max: parseInt(box.y_max, 10),
-              }))}
-            />
+        <div className="flex justify-center">
+          <div className="flex -ml-2 mr-2 w-min items-center mb-10 justify-center">
+            <div className="flex flex-col items-start space-y-20">
+              <button
+                onClick={handleDiscard}
+                className="bg-red-500 text-white py-3 px-6 rounded shadow hover:bg-red-800 transition w-full text-2xl font-bold"
+              >
+                Discard
+              </button>
+              <button
+                // onClick={handlePrevious}/
+                className="bg-blue-500 text-white py-3 px-6 rounded shadow hover:bg-blue-800 transition w-full text-2xl font-bold"
+              >
+                Complete
+              </button>
+              <button
+                // onClick={handleNext}
+                className="bg-green-500 text-white py-3 px-6 rounded shadow hover:bg-green-800 transition w-full text-2xl font-bold"
+              >
+                Forward
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="w-full">
+              <ImageWithBoundingBoxes
+                src={currentImage.src}
+                alt={currentImage.name}
+                boxes={boxesForCurrentImage.map((box) => ({
+                  Prediction: box.Prediction || "Unknown", // Ensure a default label
+                  x_min: parseInt(box.x_min, 10),
+                  y_min: parseInt(box.y_min, 10),
+                  x_max: parseInt(box.x_max, 10),
+                  y_max: parseInt(box.y_max, 10),
+                }))}
+              />
+            </div>
           </div>
         </div>
       </div>
