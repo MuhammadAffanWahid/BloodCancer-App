@@ -75,6 +75,7 @@
 import React, { useState, useEffect } from "react";
 import Home from "./Home";
 import ImageViewer from "./ImageViewer";
+import Report from "./Report";
 import './tailwind.css';
 
 function App() {
@@ -110,7 +111,8 @@ function App() {
   return (
     <div className="App rounded-3xl">
       {route === "/" && <Home navigate={navigate} />}
-      {route === "/annotate" && <ImageViewer patientDetails={patientDetails} />}
+      {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} />}
+      {route === "/report" && <Report />}
     </div>
   );
 }

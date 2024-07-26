@@ -176,7 +176,7 @@ const ImageWithBoundingBoxes = ({ src, boxes, alt }) => {
     return () => {
       canvas.removeEventListener('click', handleClick);
     };
-  }, [src, boxes, labels]);
+  }, [src, labels, boxes]);
 
   return (
     <div className="image-container">

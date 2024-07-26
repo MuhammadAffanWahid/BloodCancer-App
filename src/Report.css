@@ -1,0 +1,68 @@
+body {
+  overflow: auto;
+}
+
+.report-container {
+  width: 210mm; /* A4 width */
+  height: 290mm; /* A4 height 297mm */
+  margin: 0 auto;
+  border: 1px solid #ddd;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color:white;
+  font-family: Arial;
+  border-radius:10px;
+  margin-top:20px;
+
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header img {
+  max-width: 100px;
+}
+
+.patient-details,
+.report-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.test-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.test-table th,
+.test-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.test-table th {
+  background-color: #f2f2f2;
+}
+
+.note {
+  font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.footer .doctors {
+  display: flex;
+  justify-content: space-around;
+}
+
+.footer .doctors div {
+  text-align: center;
+}
