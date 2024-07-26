@@ -765,7 +765,7 @@ const Report = () => {
           </tbody>
         </table>
         <p className="note">NOTE: Platelet count verified on peripheral smear</p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: '#f1f1f1', fontWeight: 'bold', marginTop: '130px', marginLeft: '-20px', marginRight: '-20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', backgroundColor: '#f1f1f1', borderBottomRightRadius:'10px', borderBottomLeftRadius:'10px', fontWeight: 'bold', marginTop: '130px', marginLeft: '-20px', marginRight: '-21px' }}>
           <p style={{ margin: 0 }}>03111456789</p>
           <p style={{ margin: 0 }}>www.chughtailab.com</p>
         </div>
@@ -786,6 +786,7 @@ const Report = () => {
       >
         Download PDF
       </button>
+      <div className='spacing h-2'></div>
     </>
   );
 };

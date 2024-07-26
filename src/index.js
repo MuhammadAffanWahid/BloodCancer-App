@@ -6,7 +6,7 @@ import App from './App';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <div className='pt-2 w-screen bg-gradient-to-r from-purple-200 to-purple-400'>
+    <div>
     <App />
     </div>
   </React.StrictMode>

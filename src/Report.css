@@ -4,7 +4,7 @@ body {
 
 .report-container {
   width: 210mm; /* A4 width */
-  height: 290mm; /* A4 height 297mm */
+  height: 286mm; /* A4 height 297mm */
   margin: 0 auto;
   border: 1px solid #ddd;
   padding: 20px;
