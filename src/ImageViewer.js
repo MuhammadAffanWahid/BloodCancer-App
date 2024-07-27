@@ -372,7 +372,7 @@ const handleGenerateReport = () =>
           </div>
         </div>
         <div className="flex justify-center">
-          <div className="flex -ml-2 mr-2 w-min items-center mb-10 justify-center">
+          <div className="flex -ml-2 mr-2 w-min items-center -mt-4  justify-center">
             <div className="flex flex-col items-start space-y-20">
               <button
                 onClick={handleDiscard}
