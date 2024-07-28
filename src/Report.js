@@ -46,94 +46,167 @@ const Report = () => {
       }
     };
   }, []);
-
-  // const getPDFBlob = () => {
-  //   const reportContent = document.getElementById("report-content");
-  //   html2canvas(reportContent).then((canvas) => {
-  //     const pdf = new jsPDF("p", "pt", "a4");
-  //     const imgData = canvas.toDataURL("image/png");
-  //     const imgWidth = 595.28;
-  //     const pageHeight = 841.89;
-  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  //     let heightLeft = imgHeight;
-  //     let position = 0;
-
-  //     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-
-  //     if (heightLeft > pageHeight) {
-  //       heightLeft -= pageHeight;
-
-  //       while (heightLeft > 0) {
-  //         position = heightLeft - imgHeight;
-  //         pdf.addPage();
-  //         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  //         heightLeft -= pageHeight;
-  //       }
-  //     }
-
-  //     const pdfBlob = pdf.output('blob');
-  //     return pdfBlob;
-  //   });
-  // };
-
-  // const sendViaWhatsApp = () => {
-  //   const pdfBlob = getPDFBlob();
-  //   const pdfURL = URL.createObjectURL(pdfBlob);
-  //   const message = `Check out this PDF: ${pdfURL}`;
-  //   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`);
-  // };
-
-  // const sendViaEmail = () => {
-  //   const pdfBlob = getPDFBlob();
-  //   const pdfURL = URL.createObjectURL(pdfBlob);
-  //   const emailSubject = "Here's your PDF";
-  //   const emailBody = `Please find the PDF attached: ${pdfURL}`;
-  //   window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-  // };
-
-
-  const getPDFBlob = async () => {
-    const reportContent = document.getElementById("report-content");
-    const canvas = await html2canvas(reportContent);
-    const pdf = new jsPDF("p", "pt", "a4");
-    const imgData = canvas.toDataURL("image/png");
-    const imgWidth = 595.28;
-    const pageHeight = 841.89;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-
-    if (heightLeft > pageHeight) {
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-    }
-
-    const pdfBlob = pdf.output('blob');
-    return pdfBlob;
+  
+  const generateTextReport = () => {
+    // Function to pad strings to a fixed width
+    const padRight = (str, length) => str.padEnd(length);
+  
+    // Define fixed column widths
+    const columnWidths = {
+      test: 24,
+      normalValue: 20,
+      unit: 12,
+      result: 10,
+    };
+  
+    const header = 
+  `Department of Hematology`;
+  
+    const patientDetails = 
+  `PATIENT NAME: Irha Waqas
+  AGE/GENDER: 3 Yrs / Female
+  MOBILE: 03216862034
+  LOCATION: Lahore: Baghrian Chowk College Road
+  
+  REGISTRATION DATE: 26-Aug-2019 21:00
+  REFERENCE: Standard
+  CONSULTANT: -
+  PATIENT NUMBER: 44010-19-104822832
+  CASE NUMBER: 44010-26-08`;
+  
+    const reportDetails = 
+  `REPORTING TIME: 27 August, 2019 - 10:11 AM
+  
+  Blood C/E (Complete, CBC)`;
+  
+    const tableHeader = 
+  `${padRight('Test', columnWidths.test)}| ${padRight('Normal Value', columnWidths.normalValue)}| ${padRight('Unit', columnWidths.unit)}| ${padRight('Result', columnWidths.result)}
+  ${'-'.repeat(columnWidths.test + columnWidths.normalValue + columnWidths.unit + columnWidths.result + 3)}`;
+  
+    const tableRows = 
+  `${padRight('Hb', columnWidths.test)}| ${padRight('11.5 - 16', columnWidths.normalValue)}| ${padRight('g/dl', columnWidths.unit)}| ${padRight('11.9', columnWidths.result)}
+  ${padRight('Total RBC', columnWidths.test)}| ${padRight('4 - 6', columnWidths.normalValue)}| ${padRight('x10^12/l', columnWidths.unit)}| ${padRight('3.9', columnWidths.result)}
+  ${padRight('HCT', columnWidths.test)}| ${padRight('36 - 46', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('36', columnWidths.result)}
+  ${padRight('MCV', columnWidths.test)}| ${padRight('75 - 95', columnWidths.normalValue)}| ${padRight('fl', columnWidths.unit)}| ${padRight('93', columnWidths.result)}
+  ${padRight('MCH', columnWidths.test)}| ${padRight('26 - 32', columnWidths.normalValue)}| ${padRight('PG', columnWidths.unit)}| ${padRight('31', columnWidths.result)}
+  ${padRight('MCHC', columnWidths.test)}| ${padRight('30 - 35', columnWidths.normalValue)}| ${padRight('g/dl', columnWidths.unit)}| ${padRight('33', columnWidths.result)}
+  ${padRight('Platelet Count', columnWidths.test)}| ${padRight('150 - 400', columnWidths.normalValue)}| ${padRight('x10^9/l', columnWidths.unit)}| ${padRight('125', columnWidths.result)}
+  ${padRight('WBC Count (TLC)', columnWidths.test)}| ${padRight('4 - 11', columnWidths.normalValue)}| ${padRight('x10^9/l', columnWidths.unit)}| ${padRight('6.3', columnWidths.result)}
+  ${padRight('Neutrophils', columnWidths.test)}| ${padRight('40 - 75', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('49', columnWidths.result)}
+  ${padRight('Lymphocytes', columnWidths.test)}| ${padRight('20 - 50', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('43', columnWidths.result)}
+  ${padRight('Monocytes', columnWidths.test)}| ${padRight('02 - 10', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('06', columnWidths.result)}
+  ${padRight('Eosinophils', columnWidths.test)}| ${padRight('01 - 06', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('02', columnWidths.result)}`;
+  
+    const note = 
+  `NOTE: Platelet count verified on peripheral smear`;
+  
+    const footer = 
+  `03111456789
+  www.chughtailab.com`;
+  
+    return `\`\`\`
+  ${header}
+  
+  ${patientDetails}
+  
+  ${reportDetails}
+  
+  ${tableHeader}
+  ${tableRows}
+  
+  ${note}
+  
+  ${footer}
+  \`\`\``;
   };
-
+  
   const sendViaWhatsApp = async () => {
-    const pdfBlob = await getPDFBlob();
-    const pdfURL = URL.createObjectURL(pdfBlob);
-    const message = `Check out this PDF: ${pdfURL}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`);
+    const textReport = generateTextReport();
+    const message = `Here is the report:\n\n${textReport}`;
+    const whatsappURL = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(whatsappURL, '_blank');
   };
-
+  const generateTextReports = () => {
+    // Function to pad strings to a fixed width
+    const padRight = (str, length) => str.padEnd(length);
+    const padLeft = (str, length) => str.padStart(length);
+  
+    // Define fixed column widths
+    const columnWidths = {
+      test: 30,
+      normalValue: 20,
+      unit: 12,
+      result: 10,
+    };
+  
+    const header = 
+  `DEPARTMENT OF HEMATOLOGY`;
+  
+    const patientDetails = 
+  `PATIENT DETAILS:
+  SUMERA AMBREEN
+  AGE/GENDER: 35 YRS / FEMALE
+  MOBILE: 03216862034
+  LOCATION: Lahore: Baghrian Chowk College Road
+  
+  REGISTRATION DATE: 26-Aug-2019 21:00
+  REFERENCE: Standard
+  CONSULTANT: -
+  PATIENT NUMBER: 44010-19-104822832
+  CASE NUMBER: 44010-26-08`;
+  
+    const reportDetails = 
+  `BLOOD C/E (COMPLETE, CBC)
+  REPORTING TIME: 27 August, 2019 - 10:11 AM`;
+  
+    const tableHeader = 
+  `${padRight('Test', columnWidths.test)}| ${padRight('Normal Value', columnWidths.normalValue)}| ${padRight('Unit', columnWidths.unit)}| ${padRight('Result', columnWidths.result)}
+  ${'-'.repeat(columnWidths.test + columnWidths.normalValue + columnWidths.unit + columnWidths.result + 3)}`;
+  
+    const tableRows = 
+  `${padRight('Hb', columnWidths.test)}| ${padRight('11.5 - 16', columnWidths.normalValue)}| ${padRight('g/dl', columnWidths.unit)}| ${padRight('11.9', columnWidths.result)}
+  ${padRight('Total RBC', columnWidths.test)}| ${padRight('4 - 6', columnWidths.normalValue)}| ${padRight('x10^12/l', columnWidths.unit)}| ${padRight('3.9', columnWidths.result)}
+  ${padRight('HCT', columnWidths.test)}| ${padRight('36 - 46', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('36', columnWidths.result)}
+  ${padRight('MCV', columnWidths.test)}| ${padRight('75 - 95', columnWidths.normalValue)}| ${padRight('fl', columnWidths.unit)}| ${padRight('93', columnWidths.result)}
+  ${padRight('MCH', columnWidths.test)}| ${padRight('26 - 32', columnWidths.normalValue)}| ${padRight('PG', columnWidths.unit)}| ${padRight('31', columnWidths.result)}
+  ${padRight('MCHC', columnWidths.test)}| ${padRight('30 - 35', columnWidths.normalValue)}| ${padRight('g/dl', columnWidths.unit)}| ${padRight('33', columnWidths.result)}
+  ${padRight('Platelet Count', columnWidths.test)}| ${padRight('150 - 400', columnWidths.normalValue)}| ${padRight('x10^9/l', columnWidths.unit)}| ${padRight('125', columnWidths.result)}
+  ${padRight('WBC Count (TLC)', columnWidths.test)}| ${padRight('4 - 11', columnWidths.normalValue)}| ${padRight('x10^9/l', columnWidths.unit)}| ${padRight('6.3', columnWidths.result)}
+  ${padRight('Neutrophils', columnWidths.test)}| ${padRight('40 - 75', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('49', columnWidths.result)}
+  ${padRight('Lymphocytes', columnWidths.test)}| ${padRight('20 - 50', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('43', columnWidths.result)}
+  ${padRight('Monocytes', columnWidths.test)}| ${padRight('02 - 10', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('06', columnWidths.result)}
+  ${padRight('Eosinophils', columnWidths.test)}| ${padRight('01 - 06', columnWidths.normalValue)}| ${padRight('%', columnWidths.unit)}| ${padRight('02', columnWidths.result)}`;
+  
+    const note = 
+  `NOTE: PLATELET COUNT VERIFIED ON PERIPHERAL SMEAR`;
+  
+    const footer = 
+  `03111456789
+  www.chughtailab.com`;
+  
+    return `
+  ${header}
+  
+  ${patientDetails}
+  
+  ${reportDetails}
+  
+  ${tableHeader}
+  ${tableRows}
+  
+  ${note}
+  
+  ${footer}
+    `;
+  };
+  
   const sendViaEmail = async () => {
-    const pdfBlob = await getPDFBlob();
-    const pdfURL = URL.createObjectURL(pdfBlob);
-    const emailSubject = "Here's your PDF";
-    const emailBody = `Please find the PDF attached: ${pdfURL}`;
+    const textReport = generateTextReports();
+    const emailSubject = "Patient Blood Report";
+    const emailBody = `Here is the report:\n\n${textReport}`;
     window.location.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
   };
+  
   return (
     <>
       <div className="report-container" id="report-content">
