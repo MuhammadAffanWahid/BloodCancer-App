@@ -296,17 +296,26 @@ const handleGenerateReport = () =>
   navigate("/report");
 }
   
-  useEffect(() => {
-    Papa.parse(predictions, {
-      download: true,
-      header: true,
-      complete: (result) => {
-        console.log("Parsed CSV data:", result.data);
-        setBoundingBoxes(result.data);
-      },
-    });
-  }, []);
+const handleUpdateBoundingBox = (updatedBoundingBoxes) => {
+  setBoundingBoxes(updatedBoundingBoxes);
+  localStorage.setItem("csvData", JSON.stringify(updatedBoundingBoxes));
+};
 
+useEffect(() => {
+    if (localStorage.csvData) {
+      setBoundingBoxes(JSON.parse(localStorage.csvData));
+    } else {
+      Papa.parse(predictions, {
+        download: true,
+        header: true,
+        complete: (result) => {
+          console.log("Parsed CSV data:", result.data);
+          setBoundingBoxes(result.data);
+          localStorage.setItem("csvData", JSON.stringify(result.data));
+        },
+      });
+    }
+  }, []);
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
@@ -412,6 +421,8 @@ const handleGenerateReport = () =>
                   x_max: parseInt(box.x_max, 10),
                   y_max: parseInt(box.y_max, 10),
                 }))}
+                boundingBoxes={boundingBoxes}
+                setBoundingBoxes={handleUpdateBoundingBox}
               />
             </div>
           </div>
