@@ -84,7 +84,6 @@ import predictions from "./data/predictions.csv";
 //   return summary;
 // };
 
-
 // const generatePDF = async (data) => {
 //   const summaryData = processData(data);
 //   console.log("inside generate pdf: ",summaryData)
@@ -119,7 +118,6 @@ import predictions from "./data/predictions.csv";
 //   link.click();
 // };
 
-
 const importImages = require.context("./data", false, /\.(png|jpe?g|svg)$/);
 let images = importImages.keys().map((item) => ({
   src: importImages(item),
@@ -132,176 +130,172 @@ const ImageViewer = ({ navigate, patientDetails }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [boundingBoxes, setBoundingBoxes] = useState([]);
 
-//                                       // const handleGenerateReport = async () => {
-//                                       //   const file = './data/predictions.csv'
-//                                       //   const data = await file.arrayBuffer();
-//                                       //   const workbook = XLSX.read(data);
-//                                       //   const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-//                                       //   const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  //                                       // const handleGenerateReport = async () => {
+  //                                       //   const file = './data/predictions.csv'
+  //                                       //   const data = await file.arrayBuffer();
+  //                                       //   const workbook = XLSX.read(data);
+  //                                       //   const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  //                                       //   const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-//                                       //   generatePDF(jsonData);
-//                                       // };
+  //                                       //   generatePDF(jsonData);
+  //                                       // };
 
-//                                       // const handleGenerateReport = async () => {
-//                                       //   console.log("start")
-//                                       //   const fileUrl = './data/predictions.csv';
+  //                                       // const handleGenerateReport = async () => {
+  //                                       //   console.log("start")
+  //                                       //   const fileUrl = './data/predictions.csv';
 
-//                                       //   try {
-//                                       //     // Fetch the file as array buffer
-//                                       //     const response = await fetch(fileUrl);
-//                                       //     const data = await response.arrayBuffer();
+  //                                       //   try {
+  //                                       //     // Fetch the file as array buffer
+  //                                       //     const response = await fetch(fileUrl);
+  //                                       //     const data = await response.arrayBuffer();
 
-//                                       //     // Parse the array buffer using XLSX
-//                                       //     const workbook = XLSX.read(new Uint8Array(data));
-//                                       //     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-//                                       //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  //                                       //     // Parse the array buffer using XLSX
+  //                                       //     const workbook = XLSX.read(new Uint8Array(data));
+  //                                       //     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  //                                       //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-//                                       //     // Now you can use jsonData to generate PDF
-//                                       //     generatePDF(jsonData);
-//                                       //   } catch (error) {
-//                                       //     console.error('Error reading file:', error);
-//                                       //   }
-//                                       // };
+  //                                       //     // Now you can use jsonData to generate PDF
+  //                                       //     generatePDF(jsonData);
+  //                                       //   } catch (error) {
+  //                                       //     console.error('Error reading file:', error);
+  //                                       //   }
+  //                                       // };
 
-//                                       // const handleGenerateReport = async () => {
-//                                       //   console.log("start")
-//                                       //   const fileUrl = './data/predictions.csv';
-                                      
-//                                       //   try {
-//                                       //     // Fetch the CSV file
-//                                       //     const response = await fetch(fileUrl);
-//                                       //     // console.log("response: ",response)
-//                                       //     const csvData = await response.text(); // Read response as text
-//                                       //     // console.log("csvData: ",csvData);
-//                                       //     // Parse the CSV data using XLSX
-//                                       //     const workbook = XLSX.utils.book_new();
-//                                       //     const worksheet = XLSX.utils.aoa_to_sheet(XLSX.utils.sheet_to_json(csvData, { header: 1 }));
-//                                       //     // console.log("workbook: ", workbook);
-//                                       //     // Now you can use worksheet to generate PDF
-//                                       //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-//                                       //     console.log("Affan: ",jsonData)
-//                                       //     generatePDF(jsonData);
-//                                       //   } catch (error) {
-//                                       //     console.error('Error reading file:', error);
-//                                       //   }
-//                                       // };
+  //                                       // const handleGenerateReport = async () => {
+  //                                       //   console.log("start")
+  //                                       //   const fileUrl = './data/predictions.csv';
 
+  //                                       //   try {
+  //                                       //     // Fetch the CSV file
+  //                                       //     const response = await fetch(fileUrl);
+  //                                       //     // console.log("response: ",response)
+  //                                       //     const csvData = await response.text(); // Read response as text
+  //                                       //     // console.log("csvData: ",csvData);
+  //                                       //     // Parse the CSV data using XLSX
+  //                                       //     const workbook = XLSX.utils.book_new();
+  //                                       //     const worksheet = XLSX.utils.aoa_to_sheet(XLSX.utils.sheet_to_json(csvData, { header: 1 }));
+  //                                       //     // console.log("workbook: ", workbook);
+  //                                       //     // Now you can use worksheet to generate PDF
+  //                                       //     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  //                                       //     console.log("Affan: ",jsonData)
+  //                                       //     generatePDF(jsonData);
+  //                                       //   } catch (error) {
+  //                                       //     console.error('Error reading file:', error);
+  //                                       //   }
+  //                                       // };
 
-//                                       // const handleGenerateReport = async () => {
-//                                       //   console.log("start");
-//                                       //   const fileUrl = './data/predictions.csv';
-                                      
-//                                       //   try {
-//                                       //     // Fetch the CSV file
-//                                       //     const response = await fetch(fileUrl);
-//                                       //     const csvData = await response.text(); // Read response as text
-                                      
-//                                       //     // Parse the CSV data using PapaParse
-//                                       //     Papa.parse(csvData, {
-//                                       //       header: false,
-//                                       //       skipEmptyLines: true,
-//                                       //       complete: (results) => {
-//                                       //         const jsonData = results.data; // Get data as JSON
-//                                       //         console.log("Affan: ", jsonData);
-                                              
-//                                       //         // Generate PDF from jsonData
-//                                       //         generatePDF(jsonData);
-//                                       //       },
-//                                       //       error: (error) => {
-//                                       //         console.error('Error parsing CSV:', error);
-//                                       //       }
-//                                       //     });
-//                                       //   } catch (error) {
-//                                       //     console.error('Error reading file:', error);
-//                                       //   }
-//                                       // };
-  
-//   const handleGenerateReport = async () => {
-//     console.log("start");
-//     const fileUrl = './data/predictions.csv';
-  
-//     try {
-//       // Fetch the CSV file
-//       const response = await fetch(fileUrl);
-//       const csvData = await response.text(); // Read response as text
-                        
-//                             // // Parse the CSV data using PapaParse
-//                             // Papa.parse(csvData, {
-//                             //   header: true, // Set header to true to parse first row as header
-//                             //   skipEmptyLines: true,
-//                             //   complete: (results) => {
-//                             //     const jsonData = results.data.map(row => {
-//                             //       // Log each row to inspect it
-//                             //       console.log("Row: ", row);
-                        
-//                             //       return {
-//                             //         "Nuclear Chromatin": parseInt(row["Nuclear Chromatin"], 10) || 0,
-//                             //         "Nuclear Shape": parseInt(row["Nuclear Shape"], 10) || 0,
-//                             //         "Nucleus": parseInt(row["Nucleus"], 10) || 0,
-//                             //         "Cytoplasm": parseInt(row["Cytoplasm"], 10) || 0,
-//                             //         "Cytoplasmic Basophilia": parseInt(row["Cytoplasmic Basophilia"], 10) || 0,
-//                             //         "Cytoplasmic Vacuoles": parseInt(row["Cytoplasmic Vacuoles"], 10) || 0,
-//                             //         // Add other fields as needed
-//                             //       };
-//                             //     });
-//                             //     console.log("Affan: ", jsonData);
-                        
-//                             //     // Generate PDF from jsonData
-//                             //     generatePDF(jsonData);
-//                             //   },
-//                             //   error: (error) => {
-//                             //     console.error('Error parsing CSV:', error);
-//                             //   }
-//                             // });
+  //                                       // const handleGenerateReport = async () => {
+  //                                       //   console.log("start");
+  //                                       //   const fileUrl = './data/predictions.csv';
 
-//       const filePath = './data/predictions.csv';
-//       const columns = ['Nuclear Chromatin', 'Nuclear Shape','Nucleus','Cytoplasm','Cytoplasmic Basophilia','Cytoplasmic Vacuoles'];
-//       const jsonData = await new Promise((resolve, reject) => {
-//         Papa.parse(filePath, {
-//             header: true, // Treat the first row as headers
-//             download: true, // Download the file
-//             complete: (results) => {
-//                 // Extract columns into a dictionary for each row
-//                 const extractedData = results.data.map(row => {
-//                   console.log("Row: ", row);
-//                   const result = {};
-//                     columns.forEach(column => {
-//                         if (row[column] !== undefined) {
-//                             result[column] = row[column];
-//                         }
-//                     });
-//                     return result;
-//                 });
-//                 resolve(extractedData);
-//             },
-//             error: (error) => {
-//                 reject(error);
-//             }
-//         });
-//     });
-//     console.log("jsonData: ", jsonData);
-//     generatePDF(jsonData);
+  //                                       //   try {
+  //                                       //     // Fetch the CSV file
+  //                                       //     const response = await fetch(fileUrl);
+  //                                       //     const csvData = await response.text(); // Read response as text
 
+  //                                       //     // Parse the CSV data using PapaParse
+  //                                       //     Papa.parse(csvData, {
+  //                                       //       header: false,
+  //                                       //       skipEmptyLines: true,
+  //                                       //       complete: (results) => {
+  //                                       //         const jsonData = results.data; // Get data as JSON
+  //                                       //         console.log("Affan: ", jsonData);
 
+  //                                       //         // Generate PDF from jsonData
+  //                                       //         generatePDF(jsonData);
+  //                                       //       },
+  //                                       //       error: (error) => {
+  //                                       //         console.error('Error parsing CSV:', error);
+  //                                       //       }
+  //                                       //     });
+  //                                       //   } catch (error) {
+  //                                       //     console.error('Error reading file:', error);
+  //                                       //   }
+  //                                       // };
 
-//     } catch (error) {
-//       console.error('Error reading file:', error);
-//     }
-//   };
-  
-  
-const handleGenerateReport = () =>
-{
-  console.log("handleGenerateReport");
-  navigate("/report");
-}
-  
-const handleUpdateBoundingBox = (updatedBoundingBoxes) => {
-  setBoundingBoxes(updatedBoundingBoxes);
-  localStorage.setItem("csvData", JSON.stringify(updatedBoundingBoxes));
-};
+  //   const handleGenerateReport = async () => {
+  //     console.log("start");
+  //     const fileUrl = './data/predictions.csv';
 
-useEffect(() => {
+  //     try {
+  //       // Fetch the CSV file
+  //       const response = await fetch(fileUrl);
+  //       const csvData = await response.text(); // Read response as text
+
+  //                             // // Parse the CSV data using PapaParse
+  //                             // Papa.parse(csvData, {
+  //                             //   header: true, // Set header to true to parse first row as header
+  //                             //   skipEmptyLines: true,
+  //                             //   complete: (results) => {
+  //                             //     const jsonData = results.data.map(row => {
+  //                             //       // Log each row to inspect it
+  //                             //       console.log("Row: ", row);
+
+  //                             //       return {
+  //                             //         "Nuclear Chromatin": parseInt(row["Nuclear Chromatin"], 10) || 0,
+  //                             //         "Nuclear Shape": parseInt(row["Nuclear Shape"], 10) || 0,
+  //                             //         "Nucleus": parseInt(row["Nucleus"], 10) || 0,
+  //                             //         "Cytoplasm": parseInt(row["Cytoplasm"], 10) || 0,
+  //                             //         "Cytoplasmic Basophilia": parseInt(row["Cytoplasmic Basophilia"], 10) || 0,
+  //                             //         "Cytoplasmic Vacuoles": parseInt(row["Cytoplasmic Vacuoles"], 10) || 0,
+  //                             //         // Add other fields as needed
+  //                             //       };
+  //                             //     });
+  //                             //     console.log("Affan: ", jsonData);
+
+  //                             //     // Generate PDF from jsonData
+  //                             //     generatePDF(jsonData);
+  //                             //   },
+  //                             //   error: (error) => {
+  //                             //     console.error('Error parsing CSV:', error);
+  //                             //   }
+  //                             // });
+
+  //       const filePath = './data/predictions.csv';
+  //       const columns = ['Nuclear Chromatin', 'Nuclear Shape','Nucleus','Cytoplasm','Cytoplasmic Basophilia','Cytoplasmic Vacuoles'];
+  //       const jsonData = await new Promise((resolve, reject) => {
+  //         Papa.parse(filePath, {
+  //             header: true, // Treat the first row as headers
+  //             download: true, // Download the file
+  //             complete: (results) => {
+  //                 // Extract columns into a dictionary for each row
+  //                 const extractedData = results.data.map(row => {
+  //                   console.log("Row: ", row);
+  //                   const result = {};
+  //                     columns.forEach(column => {
+  //                         if (row[column] !== undefined) {
+  //                             result[column] = row[column];
+  //                         }
+  //                     });
+  //                     return result;
+  //                 });
+  //                 resolve(extractedData);
+  //             },
+  //             error: (error) => {
+  //                 reject(error);
+  //             }
+  //         });
+  //     });
+  //     console.log("jsonData: ", jsonData);
+  //     generatePDF(jsonData);
+
+  //     } catch (error) {
+  //       console.error('Error reading file:', error);
+  //     }
+  //   };
+
+  const handleGenerateReport = () => {
+    console.log("handleGenerateReport");
+    navigate("/report", patientDetails);
+  };
+
+  const handleUpdateBoundingBox = (updatedBoundingBoxes) => {
+    setBoundingBoxes(updatedBoundingBoxes);
+    localStorage.setItem("csvData", JSON.stringify(updatedBoundingBoxes));
+    console.log("csv data: \n", updatedBoundingBoxes);
+  };
+
+  useEffect(() => {
     if (localStorage.csvData) {
       setBoundingBoxes(JSON.parse(localStorage.csvData));
     } else {
@@ -365,7 +359,9 @@ useEffect(() => {
             <h1 className="text-xl font-bold text-violet-500">
               Patient Number
             </h1>
-            <h2 className="text-md font-bold">{patientDetails?.patientNumber}</h2>
+            <h2 className="text-md font-bold">
+              {patientDetails?.patientNumber}
+            </h2>
           </div>
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold text-violet-500">Case Number</h1>

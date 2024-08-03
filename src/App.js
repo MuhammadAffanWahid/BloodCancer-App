@@ -112,7 +112,7 @@ function App() {
     <div className="App pt-2 w-screen bg-gradient-to-r from-purple-200 to-purple-400">
       {route === "/" && <Home navigate={navigate} />}
       {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} />}
-      {route === "/report" && <Report />}
+      {route === "/report" && <Report patientDetails={patientDetails}/>}
     </div>
   );
 }
