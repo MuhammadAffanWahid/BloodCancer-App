@@ -92,7 +92,7 @@ const downloadPDF = () => {
   });
 };
 
-const Report = ({ patientDetails }) => {
+const Report = ({ patientDetails, images }) => {
   const [reportData, setReportData] = useState(null);
 
   useEffect(() => {
@@ -353,109 +353,98 @@ const Report = ({ patientDetails }) => {
           </tbody>
         </table>
 
-        {/* <div className="report-summary">
+        <div className="report-summary">
           <h4>Report Summary</h4>
-          <p>
-            Cells that are seen are <strong>Lymphoblast</strong> cells series.
-            These WBC's are medium-to-large in size, <strong>open</strong>{" "}
-            chromatin, and <strong>irregular</strong> shaped nuclei. The
-            nucleoli are <strong>inconspicuous</strong>, and the cytoplasm is{" "}
-            <strong>scanty </strong>
-            with <strong>slight</strong> basophilia. Cytoplasmic vacuoles are{" "}
-            <strong>absent</strong>.
-          </p>
-        </div> */}
-
-<div className="report-summary">
-  <h4>Report Summary</h4>
-  <div >
-    <p>
-      The majority of samples exhibit{" "}
-      <strong>
-        {Object.keys(reportData.counts["Nuclear Chromatin"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Nuclear Chromatin"][key] >
-              (reportData.counts["Nuclear Chromatin"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>{" "}
-      nuclear chromatin. Most cells have{" "}
-      <strong>
-        {Object.keys(reportData.counts["Nuclear Shape"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Nuclear Shape"][key] >
-              (reportData.counts["Nuclear Shape"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>{" "}
-      nuclear shape. The nucleus is predominantly{" "}
-      <strong>
-        {Object.keys(reportData.counts["Nucleus"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Nucleus"][key] >
-              (reportData.counts["Nucleus"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>{" "}
-      in appearance. Cytoplasm is mostly{" "}
-      <strong>
-        {Object.keys(reportData.counts["Cytoplasm"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Cytoplasm"][key] >
-              (reportData.counts["Cytoplasm"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>{" "}
-      in nature. Cytoplasmic basophilia is{" "}
-      <strong>
-        {Object.keys(reportData.counts["Cytoplasmic Basophilia"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Cytoplasmic Basophilia"][key] >
-              (reportData.counts["Cytoplasmic Basophilia"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>. Cytoplasmic vacuoles are{" "}
-      <strong>
-        {Object.keys(reportData.counts["Cytoplasmic Vacuoles"]).reduce(
-          (acc, key) => {
-            if (
-              reportData.counts["Cytoplasmic Vacuoles"][key] >
-              (reportData.counts["Cytoplasmic Vacuoles"][acc] || 0)
-            ) {
-              return key;
-            }
-            return acc;
-          }
-        )}
-      </strong>.
-    </p>
-  </div>
-</div>
+          <div>
+            <p>
+              The majority of samples exhibit{" "}
+              <strong>
+                {Object.keys(reportData.counts["Nuclear Chromatin"]).reduce(
+                  (acc, key) => {
+                    if (
+                      reportData.counts["Nuclear Chromatin"][key] >
+                      (reportData.counts["Nuclear Chromatin"][acc] || 0)
+                    ) {
+                      return key;
+                    }
+                    return acc;
+                  }
+                )}
+              </strong>{" "}
+              nuclear chromatin. Most cells have{" "}
+              <strong>
+                {Object.keys(reportData.counts["Nuclear Shape"]).reduce(
+                  (acc, key) => {
+                    if (
+                      reportData.counts["Nuclear Shape"][key] >
+                      (reportData.counts["Nuclear Shape"][acc] || 0)
+                    ) {
+                      return key;
+                    }
+                    return acc;
+                  }
+                )}
+              </strong>{" "}
+              nuclear shape. The nucleus is predominantly{" "}
+              <strong>
+                {Object.keys(reportData.counts["Nucleus"]).reduce(
+                  (acc, key) => {
+                    if (
+                      reportData.counts["Nucleus"][key] >
+                      (reportData.counts["Nucleus"][acc] || 0)
+                    ) {
+                      return key;
+                    }
+                    return acc;
+                  }
+                )}
+              </strong>{" "}
+              in appearance. Cytoplasm is mostly{" "}
+              <strong>
+                {Object.keys(reportData.counts["Cytoplasm"]).reduce(
+                  (acc, key) => {
+                    if (
+                      reportData.counts["Cytoplasm"][key] >
+                      (reportData.counts["Cytoplasm"][acc] || 0)
+                    ) {
+                      return key;
+                    }
+                    return acc;
+                  }
+                )}
+              </strong>{" "}
+              in nature. Cytoplasmic basophilia is{" "}
+              <strong>
+                {Object.keys(
+                  reportData.counts["Cytoplasmic Basophilia"]
+                ).reduce((acc, key) => {
+                  if (
+                    reportData.counts["Cytoplasmic Basophilia"][key] >
+                    (reportData.counts["Cytoplasmic Basophilia"][acc] || 0)
+                  ) {
+                    return key;
+                  }
+                  return acc;
+                })}
+              </strong>
+              . Cytoplasmic vacuoles are{" "}
+              <strong>
+                {Object.keys(reportData.counts["Cytoplasmic Vacuoles"]).reduce(
+                  (acc, key) => {
+                    if (
+                      reportData.counts["Cytoplasmic Vacuoles"][key] >
+                      (reportData.counts["Cytoplasmic Vacuoles"][acc] || 0)
+                    ) {
+                      return key;
+                    }
+                    return acc;
+                  }
+                )}
+              </strong>
+              .
+            </p>
+          </div>
+        </div>
       </div>
       <div className="flex justify-center mt-4">
         <button

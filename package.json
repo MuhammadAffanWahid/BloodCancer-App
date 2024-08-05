@@ -7,13 +7,16 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "konva": "^8.3.3",
+    "node-polyfill-webpack-plugin": "^4.0.0",
     "pandas-js": "^0.2.4",
     "papaparse": "^5.4.1",
     "react": "^18.0.0",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.0.0",
     "react-konva": "^18.0.0",
     "react-pdf": "^9.1.0",
@@ -21,12 +24,12 @@
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
+"scripts": {
+  "start": "react-app-rewired start",
+  "build": "react-app-rewired build",
+  "test": "react-app-rewired test",
+  "eject": "react-scripts eject"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
