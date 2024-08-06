@@ -204,7 +204,7 @@ const ImageWithBoundingBoxes = ({
       });
 
       // Save the image to the server
-      const imageName = `${alt}.png`; // Use a unique name for each image
+      const imageName = `${alt}`; // Use a unique name for each image
       saveImageToServer(canvas, imageName);
     };
 

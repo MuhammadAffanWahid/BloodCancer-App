@@ -6,7 +6,13 @@ import medaiLogo from "./med-ai.png";
 import { ReactComponent as WhatsappSVG } from "./whatsapp.svg";
 import { ReactComponent as DownloadSVG } from "./download.svg";
 import { ReactComponent as EmailSVG } from "./email.svg";
+import image_0 from './backend/results/image_0.png'
+import image_1 from './backend/results/image_1.png'
+import image_2 from './backend/results/image_2.png'
+import image_3 from './backend/results/image_3.png'
+import image_4 from './backend/results/image_4.png'
 
+const images_diff = [image_0,image_1,image_2,image_3,image_4,image_0,image_1,image_2,image_3,image_4,image_0,image_1,image_2,image_3,image_4];
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
@@ -64,35 +70,278 @@ const generateReportData = (data) => {
   return { mappedData, counts, predictionPercentages, totalSamples };
 };
 
-const downloadPDF = () => {
+// const downloadPDF = () => {
+//   const reportContent = document.getElementById("report-content");
+//   html2canvas(reportContent).then((canvas) => {
+//     const pdf = new jsPDF("p", "pt", "a4");
+//     const imgData = canvas.toDataURL("image/png");
+//     const imgWidth = 595.28;
+//     const pageHeight = 841.89;
+//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//     let heightLeft = imgHeight;
+//     let position = 0;
+
+//     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+//     if (heightLeft > pageHeight) {
+//       heightLeft -= pageHeight;
+
+//       while (heightLeft > 0) {
+//         position = heightLeft - imgHeight;
+//         pdf.addPage();
+//         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+//         heightLeft -= pageHeight;
+//       }
+//     }
+
+//     pdf.save("report.pdf");
+//   });
+// };
+
+
+
+
+
+
+
+
+
+
+// const downloadPDF = () => {
+//   const reportContent = document.getElementById("report-content");
+
+//   // Generate the first page with report content
+//   html2canvas(reportContent).then((canvas) => {
+//     const pdf = new jsPDF("p", "pt", "a4");
+//     const imgData = canvas.toDataURL("image/png");
+//     const imgWidth = 595.28;
+//     const pageHeight = 841.89;
+//     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//     let heightLeft = imgHeight;
+//     let position = 0;
+
+//     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+//     if (heightLeft > pageHeight) {
+//       heightLeft -= pageHeight;
+
+//       while (heightLeft > 0) {
+//         position = heightLeft - imgHeight;
+//         pdf.addPage();
+//         pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+//         heightLeft -= pageHeight;
+//       }
+//     }
+
+//     // Add a new page for the images
+//     pdf.addPage();
+
+//     // Define the grid for the images
+//     const imagesPerPage = 4; // Number of images per page
+//     const imageWidth = 200; // Width of each image
+//     const imageHeight = 150; // Height of each image
+//     let x = 20; // Initial x position
+//     let y = 20; // Initial y position
+//     let imageCount = 0;
+
+//     for (let i = 0; i < images_diff.length; i++) {
+//       if (imageCount === imagesPerPage) {
+//         pdf.addPage();
+//         x = 20;
+//         y = 20;
+//         imageCount = 0;
+//       }
+
+//       pdf.addImage(images_diff[i], "PNG", x, y, imageWidth, imageHeight);
+//       x += imageWidth + 10;
+
+//       if ((i + 1) % 2 === 0) {
+//         x = 20;
+//         y += imageHeight + 10;
+//       }
+
+//       imageCount++;
+//     }
+
+//     pdf.save("report.pdf");
+//   });
+// };
+
+
+
+
+
+
+
+
+// const downloadPDF = async () => {
+//   const reportContent = document.getElementById("report-content");
+
+//   // Generate the first page with report content
+//   const canvas = await html2canvas(reportContent);
+//   const pdf = new jsPDF("p", "pt", "a4");
+//   const imgData = canvas.toDataURL("image/png");
+//   const imgWidth = 595.28; // width of A4 in points
+//   const pageHeight = 841.89; // height of A4 in points
+//   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//   let heightLeft = imgHeight;
+//   let position = 0;
+
+//   pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+//   if (heightLeft > pageHeight) {
+//     heightLeft -= pageHeight;
+
+//     while (heightLeft > 0) {
+//       position = heightLeft - imgHeight;
+//       pdf.addPage();
+//       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+//       heightLeft -= pageHeight;
+//     }
+//   }
+
+//   // Start adding images from the second page
+//   pdf.addPage();
+
+//   // Define the grid for the images
+//   const imagesPerPage = 8; // Number of images per page
+//   const padding = 1; // Minimal padding around the images
+//   const gridColumns = 2; // Number of columns in the grid
+//   const gridRows = 4; // Number of rows in the grid
+//   const totalHorizontalPadding = padding * (gridColumns + 1);
+//   const totalVerticalPadding = padding * (gridRows + 1);
+//   const cellWidth = (imgWidth - totalHorizontalPadding) / gridColumns;
+//   const cellHeight = (pageHeight - totalVerticalPadding) / gridRows;
+//   const imageSize = Math.min(cellWidth, cellHeight); // Ensuring all images are the same size
+
+//   let imageCount = 0;
+
+//   const loadImage = (src) => {
+//     return new Promise((resolve) => {
+//       const img = new Image();
+//       img.src = src;
+//       img.onload = () => resolve(img);
+//     });
+//   };
+
+//   for (let i = 0; i < images_diff.length; i++) {
+//     if (imageCount === imagesPerPage) {
+//       pdf.addPage();
+//       imageCount = 0;
+//     }
+
+//     const img = await loadImage(images_diff[i]);
+//     const aspectRatio = img.width / img.height;
+//     let imgWidth, imgHeight;
+
+//     // Adjust image dimensions to maintain aspect ratio and maximize within the cell
+//     if (aspectRatio > 1) { // Landscape orientation
+//       imgWidth = cellWidth;
+//       imgHeight = cellWidth / aspectRatio;
+//     } else { // Portrait orientation
+//       imgHeight = cellHeight;
+//       imgWidth = cellHeight * aspectRatio;
+//     }
+
+//     // Center the image within the cell
+//     const x = padding + (imageCount % gridColumns) * (cellWidth + padding) + (cellWidth - imgWidth) / 2;
+//     const y = padding + Math.floor(imageCount / gridColumns) * (cellHeight + padding) + (cellHeight - imgHeight) / 2;
+
+//     pdf.addImage(img, "PNG", x, y, imgWidth-10, imgHeight-10);
+//     imageCount++;
+//   }
+
+//   pdf.save("report.pdf");
+// };
+
+
+
+
+
+
+const downloadPDF = async () => {
   const reportContent = document.getElementById("report-content");
-  html2canvas(reportContent).then((canvas) => {
-    const pdf = new jsPDF("p", "pt", "a4");
-    const imgData = canvas.toDataURL("image/png");
-    const imgWidth = 595.28;
-    const pageHeight = 841.89;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
 
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  // Generate the first page with report content
+  const canvas = await html2canvas(reportContent);
+  const pdf = new jsPDF("p", "pt", "a4");
+  const imgData = canvas.toDataURL("image/png");
+  const imgWidth = 595.28; // width of A4 in points
+  const pageHeight = 841.89; // height of A4 in points
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  let heightLeft = imgHeight;
+  let position = 0;
 
-    if (heightLeft > pageHeight) {
-      heightLeft -= pageHeight;
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
+  // if (heightLeft > pageHeight) {
+  //   heightLeft -= pageHeight;
+
+  //   while (heightLeft > 0) {
+  //     position = heightLeft - imgHeight;
+  //     pdf.addPage();
+  //     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  //     heightLeft -= pageHeight;
+  //   }
+  // }
+
+  // Define the grid for the images
+  const imagesPerPage = 8; // Number of images per page
+  const padding = 1; // Minimal padding around the images
+  const gridColumns = 2; // Number of columns in the grid
+  const gridRows = 4; // Number of rows in the grid
+  const totalHorizontalPadding = padding * (gridColumns + 1);
+  const totalVerticalPadding = padding * (gridRows + 1);
+  const cellWidth = (imgWidth - totalHorizontalPadding) / gridColumns;
+  const cellHeight = (pageHeight - totalVerticalPadding) / gridRows;
+  const imageSize = Math.min(cellWidth, cellHeight); // Ensuring all images are the same size
+
+  let imageCount = 0;
+
+  const loadImage = (src) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => resolve(img);
+    });
+  };
+
+  // Start with the next page directly after the report content
+  pdf.addPage();
+
+  for (let i = 0; i < images_diff.length; i++) {
+    if (imageCount === imagesPerPage) {
+      pdf.addPage();
+      imageCount = 0;
     }
 
-    pdf.save("report.pdf");
-  });
+    const img = await loadImage(images_diff[i]);
+    const aspectRatio = img.width / img.height;
+    let imgWidth, imgHeight;
+
+    // Adjust image dimensions to maintain aspect ratio and maximize within the cell
+    if (aspectRatio > 1) { // Landscape orientation
+      imgWidth = cellWidth;
+      imgHeight = cellWidth / aspectRatio;
+    } else { // Portrait orientation
+      imgHeight = cellHeight;
+      imgWidth = cellHeight * aspectRatio;
+    }
+
+    // Center the image within the cell
+    const x = padding + (imageCount % gridColumns) * (cellWidth + padding) + (cellWidth - imgWidth) / 2;
+    const y = padding + Math.floor(imageCount / gridColumns) * (cellHeight + padding) + (cellHeight - imgHeight) / 2;
+
+    pdf.addImage(img, "PNG", x+5, y, imgWidth-10, imgHeight);
+    imageCount++;
+  }
+
+  pdf.save("report.pdf");
 };
 
-const Report = ({ patientDetails, images }) => {
+
+
+const Report = ({ patientDetails }) => {
   const [reportData, setReportData] = useState(null);
 
   useEffect(() => {
@@ -445,6 +694,11 @@ const Report = ({ patientDetails, images }) => {
             </p>
           </div>
         </div>
+        {/* <div className="image-gallery">
+          {images_diff.map((img, index) => (
+            <img key={index} src={img} alt={`Result ${index}`} />
+          ))}
+        </div> */}
       </div>
       <div className="flex justify-center mt-4">
         <button
