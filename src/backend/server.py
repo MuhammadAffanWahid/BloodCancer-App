@@ -7,6 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 results_dir = './results'
+data_dir = './data'
 
 if not os.path.exists(results_dir):
     os.makedirs(results_dir)
@@ -26,5 +27,16 @@ def save_image():
 
     return jsonify({'message': 'Image saved successfully'}), 200
 
+
+
+@app.route('/folders', methods=['GET'])
+def get_folders():
+    try:
+        folders = [f for f in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, f))]
+        return jsonify(folders), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

@@ -76,6 +76,7 @@ import React, { useState, useEffect } from "react";
 import Home from "./Home";
 import ImageViewer from "./ImageViewer";
 import Report from "./Report";
+import Dashboard from "./Dashboard";
 import './tailwind.css';
 
 function App() {
@@ -110,8 +111,8 @@ function App() {
 
   return (
     <div className="App pt-2 w-screen bg-gradient-to-r from-purple-200 to-purple-400">
-      {route === "/" && <Home navigate={navigate} />}
-      {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} />}
+      {route === "/" && <Dashboard navigate={navigate} />}
+      {route === "/home" && <Home navigate={navigate} />}
       {route === "/report" && <Report patientDetails={patientDetails}/>}
     </div>
   );
