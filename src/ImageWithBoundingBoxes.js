@@ -143,7 +143,7 @@
 //   const saveImageToServer = async (canvas, imageName) => {
 //     const imageData = canvas.toDataURL('image/png');
 //     try {
-//       await axios.post('http://localhost:5000/save-image', {
+//       await axios.post('http://localhost:4000/save-image', {
 //         image: imageData,
 //         name: imageName,
 //       });
@@ -420,7 +420,7 @@ const ImageWithBoundingBoxes = ({
   const saveImageToServer = async (canvas, imageName) => {
     const imageData = canvas.toDataURL('image/png');
     try {
-      await axios.post('http://localhost:5000/save-image', {
+      await axios.post('http://localhost:4000/save-image', {
         image: imageData,
         name: imageName,
       });

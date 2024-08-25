@@ -774,7 +774,8 @@ import image_3 from './backend/results/image_3.png'
 import image_4 from './backend/results/image_4.png'
 import axios from "axios";
 
-const images_diff = [image_0,image_1,image_2,image_3,image_4,image_0,image_1,image_2,image_3,image_4,image_0,image_1,image_2,image_3,image_4];
+const images_diff = [
+];
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
@@ -904,7 +905,7 @@ const uploadPDF = async (filename) => {
   const pdf = await generatePDF();
   const pdfData = pdf.output('datauristring').split(',')[1]; // Get base64 PDF content
 
-  const response = await axios.post('http://localhost:5000/upload-pdf', {
+  const response = await axios.post('http://localhost:4000/upload-pdf', {
     filename: `${filename}.pdf`,
     content: pdfData
   });

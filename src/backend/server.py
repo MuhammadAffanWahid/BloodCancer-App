@@ -172,7 +172,9 @@ import pandas as pd
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-
+from google_auth_oauthlib.flow import InstalledAppFlow
+import json
+from google.auth.transport.requests import Request
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -184,13 +186,50 @@ if not os.path.exists(results_dir):
     os.makedirs(results_dir)
 
 # Setup Google Drive API
+import os
+import json
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 creds = None
-print("mansha don")
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+redirect_uri = 'http://localhost:5000/'
 
-print("Mansha: ", creds)
+def save_credentials(credentials, filename='cred.json'):
+    with open(filename, 'w') as token:
+        token.write(credentials.to_json())
+
+def authorize_and_save_credentials():
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'client_secret.json', SCOPES,redirect_uri=redirect_uri)  # Ensure you have client_secret.json for initial authorization
+    creds = flow.run_local_server(port=5000)  # This will open a browser for user authorization
+    save_credentials(creds)
+
+def refresh_and_save_credentials():
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+        save_credentials(creds)
+        print("Credentials have been refreshed and saved.")
+    else:
+        print("Credentials are valid.")
+
+if os.path.exists('cred.json'):
+    try:
+        with open('cred.json', 'r') as token:
+            creds_data = json.load(token)
+            creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
+        # Refresh credentials if needed
+        refresh_and_save_credentials()
+    except Exception as e:
+        print(f"Error loading credentials: {e}")
+        # If error, it might be due to missing refresh token, authorize again
+        authorize_and_save_credentials()
+else:
+    print("No credentials file found. Initiating authorization.")
+    authorize_and_save_credentials()
+
+
 @app.route('/save-image', methods=['POST'])
 def save_image():
     data = request.json
@@ -292,4 +331,4 @@ def get_folders():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=4000, debug=True)

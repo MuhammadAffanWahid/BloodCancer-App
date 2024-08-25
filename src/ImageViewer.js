@@ -26,12 +26,12 @@
 
 //         // Fetch images and CSV data from the backend
 //         const normalizedImageFolder = imageFolder.replace(/^\/|\/$/g, '');  // This will remove leading and trailing slashes
-//         const imageResponse = await fetch(`http://localhost:5000/images?folder=${encodeURIComponent(normalizedImageFolder)}`);
-//         // const imageResponse = await fetch(`http://localhost:5000/images?folder=${encodeURIComponent(imageFolder)}`);
+//         const imageResponse = await fetch(`http://localhost:4000/images?folder=${encodeURIComponent(normalizedImageFolder)}`);
+//         // const imageResponse = await fetch(`http://localhost:4000/images?folder=${encodeURIComponent(imageFolder)}`);
 //         const imageData = await imageResponse.json();
 //         setImages(imageData.images);
 
-//         const csvResponse = await fetch(`http://localhost:5000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`);
+//         const csvResponse = await fetch(`http://localhost:4000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`);
 //         const csvData = await csvResponse.text();
 //         Papa.parse(csvData, {
 //           header: true,
@@ -202,12 +202,12 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
     
         // Fetch images and CSV data from the backend
         const normalizedImageFolder = imageFolder.replace(/^\/|\/$/g, '');  // This will remove leading and trailing slashes
-        const imageResponse = await fetch(`http://localhost:5000/images?folder=${encodeURIComponent(normalizedImageFolder)}`);
+        const imageResponse = await fetch(`http://localhost:4000/images?folder=${encodeURIComponent(normalizedImageFolder)}`);
         const imageData = await imageResponse.json();
         console.log("Fetched images:", imageData.images);  // Check the fetched images
         setImages(imageData.images);
     
-        const csvResponse = await fetch(`http://localhost:5000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`);
+        const csvResponse = await fetch(`http://localhost:4000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`);
         const csvData = await csvResponse.text();
         Papa.parse(csvData, {
           header: true,
@@ -369,7 +369,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
             <div className="w-full">
               {currentImage && (
                 <ImageWithBoundingBoxes
-                  src={`http://localhost:5000${currentImage.src}`}  // Use the backend URL for the image
+                  src={`http://localhost:4000${currentImage.src}`}  // Use the backend URL for the image
                   alt={currentImage.name}
                   boxes={boxesForCurrentImage.map((box) => ({
                     Prediction: box.Prediction || "Unknown", // Ensure a default label

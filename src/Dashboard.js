@@ -7,7 +7,7 @@ function Dashboard({ navigate }) {
   useEffect(() => {
     const fetchFolders = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/folders');
+        const response = await axios.get('http://localhost:4000/folders');
         setFolders(response.data);
       } catch (error) {
         console.error('Error fetching folders:', error);
