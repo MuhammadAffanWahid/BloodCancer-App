@@ -11,6 +11,10 @@
 // }
 
 // export default App;
+
+
+
+
 // import React from "react";
 // import { BrowserRouter, Route, Routes } from "react-router-dom";
 // import Home from "./Home";
@@ -82,11 +86,17 @@ import './tailwind.css';
 function App() {
   const [route, setRoute] = useState(window.location.pathname);
   const [patientDetails, setPatientDetails] = useState(null);
+  const [imageFolder, setImageFolder] = useState(""); // State to store the image folder
 
   useEffect(() => {
     const savedDetails = localStorage.getItem('patientDetails');
     if (savedDetails) {
       setPatientDetails(JSON.parse(savedDetails));
+    }
+
+    const savedImageFolder = localStorage.getItem('imageFolder');
+    if (savedImageFolder) {
+      setImageFolder(savedImageFolder);
     }
 
     const handlePopState = () => {
@@ -100,19 +110,25 @@ function App() {
     };
   }, []);
 
-  const navigate = (path, details = null) => {
+  const navigate = (path, details = null, folder) => {
     window.history.pushState({}, "", path);
     setRoute(path);
     if (details) {
       setPatientDetails(details);
       localStorage.setItem('patientDetails', JSON.stringify(details));
     }
+
+    if (folder) {
+      setImageFolder(folder);
+      localStorage.setItem('imageFolder', folder);
+    }
   };
 
   return (
     <div className="App pt-2 w-screen bg-gradient-to-r from-purple-200 to-purple-400">
       {route === "/" && <Dashboard navigate={navigate} />}
-      {route === "/home" && <Home navigate={navigate} />}
+      {route === "/home" && <Home navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
+      {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
       {route === "/report" && <Report patientDetails={patientDetails}/>}
     </div>
   );
