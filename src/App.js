@@ -87,6 +87,7 @@ function App() {
   const [route, setRoute] = useState(window.location.pathname);
   const [patientDetails, setPatientDetails] = useState(null);
   const [imageFolder, setImageFolder] = useState(""); // State to store the image folder
+  const [isForward, setIsForward] = useState(false);
 
   useEffect(() => {
     const savedDetails = localStorage.getItem('patientDetails');
@@ -97,6 +98,11 @@ function App() {
     const savedImageFolder = localStorage.getItem('imageFolder');
     if (savedImageFolder) {
       setImageFolder(savedImageFolder);
+    }
+
+    const savedIsForward = localStorage.getItem('isForward');
+    if (savedIsForward) {
+      setIsForward(JSON.parse(savedIsForward));
     }
 
     const handlePopState = () => {
@@ -110,7 +116,7 @@ function App() {
     };
   }, []);
 
-  const navigate = (path, details = null, folder) => {
+  const navigate = (path, details = null, folder=null, isForward=false) => {
     window.history.pushState({}, "", path);
     setRoute(path);
     if (details) {
@@ -122,6 +128,10 @@ function App() {
       setImageFolder(folder);
       localStorage.setItem('imageFolder', folder);
     }
+
+      // Store isForward in local storage or state
+  setIsForward(isForward);
+  localStorage.setItem('isForward', isForward);
   };
 
   return (
@@ -129,7 +139,7 @@ function App() {
       {route === "/" && <Dashboard navigate={navigate} />}
       {route === "/home" && <Home navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
       {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
-      {route === "/report" && <Report patientDetails={patientDetails}/>}
+      {route === "/report" && <Report patientDetails={patientDetails} isForward={isForward}/>}
     </div>
   );
 }

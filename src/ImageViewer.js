@@ -186,7 +186,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
 
   const handleGenerateReport = () => {
     console.log("handleGenerateReport");
-    navigate("/report", patientDetails);
+    navigate("/report", patientDetails,imageFolder,false);
   };
 
   const handleUpdateBoundingBox = (updatedBoundingBoxes) => {
@@ -199,15 +199,23 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
     const fetchData = async () => {
       try {
         console.log("imageFolder: ", imageFolder);
-    
+
         // Fetch images and CSV data from the backend
-        const normalizedImageFolder = imageFolder.replace(/^\/|\/$/g, '');  // This will remove leading and trailing slashes
-        const imageResponse = await fetch(`http://localhost:4000/images?folder=${encodeURIComponent(normalizedImageFolder)}`);
+        const normalizedImageFolder = imageFolder.replace(/^\/|\/$/g, ""); // This will remove leading and trailing slashes
+        const imageResponse = await fetch(
+          `http://localhost:4000/images?folder=${encodeURIComponent(
+            normalizedImageFolder
+          )}`
+        );
         const imageData = await imageResponse.json();
-        console.log("Fetched images:", imageData.images);  // Check the fetched images
+        console.log("Fetched images:", imageData.images); // Check the fetched images
         setImages(imageData.images);
-    
-        const csvResponse = await fetch(`http://localhost:4000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`);
+
+        const csvResponse = await fetch(
+          `http://localhost:4000/csv?folder=${encodeURIComponent(
+            normalizedImageFolder
+          )}`
+        );
         const csvData = await csvResponse.text();
         Papa.parse(csvData, {
           header: true,
@@ -217,7 +225,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
             localStorage.setItem("csvData", JSON.stringify(result.data));
           },
         });
-    
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -234,7 +242,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
   }, [currentIndex, images]);
 
   useEffect(() => {
-      console.log("affan images:", images);
+    console.log("affan images:", images);
   }, [images]);
 
   // const handleNext = () => {
@@ -252,6 +260,37 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
   //     return newIndex;
   //   });
   // };
+  const handleComplete = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/update-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          folder: imageFolder, // Pass the imageFolder as the folder name
+          status: "complete", // Set the status as 'complete'
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result.message);
+        alert("Status updated to complete");
+      } else {
+        const errorResult = await response.json();
+        console.error("Error updating status:", errorResult.error);
+        alert("Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error during API call:", error);
+      alert("Failed to update status due to a network error");
+    }
+  };
+
+  const handleForward = () => {
+    navigate("/report", patientDetails, imageFolder,true);
+  };
 
   const handleNext = () => {
     if (images.length > 0) {
@@ -265,7 +304,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
       console.error("No images to navigate to.");
     }
   };
-  
+
   const handlePrevious = () => {
     if (images.length > 0) {
       setCurrentIndex((prevIndex) =>
@@ -280,7 +319,6 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
     alert("Image Discarded");
   };
 
-
   useEffect(() => {
     window.focus();
     const handleKeyDown = (event) => {
@@ -291,18 +329,17 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
         handlePrevious();
       }
     };
-    
+
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleNext,handlePrevious]);
+  }, [handleNext, handlePrevious]);
 
   const currentImage = images[currentIndex];
   const boxesForCurrentImage = boundingBoxes.filter(
     (box) => box["Image Name"] === currentImage?.name
   );
-
 
   if (loading) return <div>Loading...</div>;
 
@@ -337,7 +374,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
           </div>
         </div>
         <div className="flex justify-center">
-        <div className="flex -ml-2 mr-2 w-min items-center -mt-4  justify-center">
+          <div className="flex -ml-2 mr-2 w-min items-center -mt-4  justify-center">
             <div className="flex flex-col items-start space-y-20">
               <button
                 onClick={handleDiscard}
@@ -346,16 +383,16 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
                 Discard
               </button>
               <button
-                // onClick={handlePrevious}/
+                onClick={handleForward}
                 className="bg-yellow-500 text-white py-8 px-6 rounded shadow hover:bg-yellow-800 transition w-full text-2xl font-bold"
               >
-                Complete
+                Forward
               </button>
               <button
-                // onClick={handleNext}
+                onClick={handleComplete}
                 className="bg-green-500 text-white py-8 px-6 rounded shadow hover:bg-green-800 transition w-full text-2xl font-bold"
               >
-                Forward
+                Complete
               </button>
               <button
                 onClick={handleGenerateReport}
@@ -369,7 +406,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
             <div className="w-full">
               {currentImage && (
                 <ImageWithBoundingBoxes
-                  src={`http://localhost:4000${currentImage.src}`}  // Use the backend URL for the image
+                  src={`http://localhost:4000${currentImage.src}`} // Use the backend URL for the image
                   alt={currentImage.name}
                   boxes={boxesForCurrentImage.map((box) => ({
                     Prediction: box.Prediction || "Unknown", // Ensure a default label
