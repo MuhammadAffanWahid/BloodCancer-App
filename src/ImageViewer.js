@@ -378,25 +378,25 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
             <div className="flex flex-col items-start space-y-20">
               <button
                 onClick={handleDiscard}
-                className="bg-red-500 text-white py-8 px-6 rounded shadow hover:bg-red-800 transition w-full text-2xl font-bold"
+                className="bg-red-500 text-white py-8 px-6 rounded-xl shadow hover:bg-red-800 transition w-full text-2xl font-bold"
               >
                 Discard
               </button>
               <button
                 onClick={handleForward}
-                className="bg-yellow-500 text-white py-8 px-6 rounded shadow hover:bg-yellow-800 transition w-full text-2xl font-bold"
+                className="bg-yellow-500 text-white py-8 px-6 rounded-xl  shadow hover:bg-yellow-800 transition w-full text-2xl font-bold"
               >
                 Forward
               </button>
               <button
                 onClick={handleComplete}
-                className="bg-green-500 text-white py-8 px-6 rounded shadow hover:bg-green-800 transition w-full text-2xl font-bold"
+                className="bg-green-500 text-white py-8 px-6 rounded-xl  shadow hover:bg-green-800 transition w-full text-2xl font-bold"
               >
                 Complete
               </button>
               <button
                 onClick={handleGenerateReport}
-                className="bg-blue-500 text-white py-4 px-6 rounded shadow hover:bg-blue-800 transition w-full text-2xl font-bold"
+                className="bg-blue-500 text-white py-4 px-6 rounded-xl  shadow hover:bg-blue-800 transition w-full text-2xl font-bold"
               >
                 PDF Report
               </button>

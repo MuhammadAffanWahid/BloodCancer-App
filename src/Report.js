@@ -6,15 +6,16 @@ import medaiLogo from "./med-ai.png";
 import { ReactComponent as WhatsappSVG } from "./whatsapp.svg";
 import { ReactComponent as DownloadSVG } from "./download.svg";
 import { ReactComponent as EmailSVG } from "./email.svg";
-// import image_0 from './backend/results/image_0.png'
-// import image_1 from './backend/results/image_1.png'
-// import image_2 from './backend/results/image_2.png'
-// import image_3 from './backend/results/image_3.png'
-// import image_4 from './backend/results/image_4.png'
+import image_0 from './backend/results/image_0.png'
+import image_1 from './backend/results/image_1.png'
+import image_2 from './backend/results/image_2.png'
+import image_3 from './backend/results/image_3.png'
+import image_4 from './backend/results/image_4.png'
 import axios from "axios";
 
-const images_diff = [
+const images_diff = [ image_0, image_1, image_2, image_3, image_4
 ];
+
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
@@ -71,7 +72,6 @@ const generateReportData = (data) => {
 
   return { mappedData, counts, predictionPercentages, totalSamples };
 };
-
 
 const downloadPDF = async () => {
   const pdf = await generatePDF();
