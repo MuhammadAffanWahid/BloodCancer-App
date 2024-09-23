@@ -15,7 +15,6 @@ import axios from "axios";
 
 const images_diff = [ image_0, image_1, image_2, image_3, image_4
 ];
-
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
