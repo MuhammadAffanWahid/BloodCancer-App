@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaUserMd, FaTools } from 'react-icons/fa';  // Icons for Doctor and Technician
+import { FaUserMd, FaTools } from 'react-icons/fa';  
 
 function Dashboard({ navigate }) {
   const [folders, setFolders] = useState([]);
-  const [userType, setUserType] = useState(null);  // State for user type (Technician/Doctor)
-  const [doctorAction, setDoctorAction] = useState(null);  // State for Doctor's action (Review/Capture)
+  const [userType, setUserType] = useState(null);  
+  const [doctorAction, setDoctorAction] = useState(null);  
 
   useEffect(() => {
     if (doctorAction === 'Review') {
@@ -23,33 +23,34 @@ function Dashboard({ navigate }) {
 
   const handleUserSelection = (user) => {
     setUserType(user);
-    if(user=='Technician')
-    {
-      navigate('/home');
+    if (user === 'Technician') {
+      // Clear patientDetails when Technician is selected
+      navigate('/home', null, null, false, true);  // clearPatientDetails = true
     }
   };
 
   const handleDoctorAction = (action) => {
     if (action === 'Capture') {
-      navigate('/home');
+      // Clear patientDetails when Doctor selects Capture
+      navigate('/home', null, null, false, true);  // clearPatientDetails = true
     } else if (action === 'Review') {
       setDoctorAction('Review');
     }
   };
 
   const handleFolderClick = (folder) => {
+    // Retain patientDetails when selecting a patient card in Review mode
     navigate('/home', folder.metadata, folder.name);
   };
 
   const goBack = () => {
     if (doctorAction) {
-      setDoctorAction(null);  // Go back to Doctor action selection
+      setDoctorAction(null);  
     } else {
-      setUserType(null);  // Go back to User type selection
+      setUserType(null);  
     }
   };
 
-  // Show rectangular tiles for Technician/Doctor selection if no userType selected yet
   if (!userType) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-200 to-purple-400">
@@ -58,22 +59,21 @@ function Dashboard({ navigate }) {
             onClick={() => handleUserSelection('Technician')}
             className="cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl bg-blue-500 px-28 py-10 rounded-lg shadow-lg flex flex-col justify-center items-center"
           >
-            <FaTools className="text-white text-9xl" /> {/* Icon for Technician */}
-            <div className="mt-4 text-white text-xl font-bold">Technician</div> {/* Label for Technician */}
+            <FaTools className="text-white text-9xl" /> 
+            <div className="mt-4 text-white text-xl font-bold">Technician</div> 
           </div>
           <div
             onClick={() => handleUserSelection('Doctor')}
             className="cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl bg-green-500 px-28 py-10 rounded-lg shadow-lg flex flex-col justify-center items-center"
           >
-            <FaUserMd className="text-white text-9xl" /> {/* Icon for Doctor */}
-            <div className="mt-4 text-white text-xl font-bold">Doctor</div> {/* Label for Doctor */}
+            <FaUserMd className="text-white text-9xl" /> 
+            <div className="mt-4 text-white text-xl font-bold">Doctor</div> 
           </div>
         </div>
       </div>
     );
   }
 
-  // Show Capture/Review options for Doctor
   if (userType === 'Doctor' && !doctorAction) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-r from-purple-200 to-purple-400">
@@ -91,7 +91,6 @@ function Dashboard({ navigate }) {
             <div className="text-white text-6xl font-bold">Review</div>
           </div>
         </div>
-        {/* Back button */}
         <button
           onClick={goBack}
           className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transform transition-transform duration-300 ease-in-out hover:scale-105"
@@ -102,7 +101,6 @@ function Dashboard({ navigate }) {
     );
   }
 
-  // Show patient folders for Doctor Review action
   if (doctorAction === 'Review') {
     return (
       <div className="p-4 min-h-screen bg-gradient-to-r from-purple-200 to-purple-400">
@@ -128,7 +126,6 @@ function Dashboard({ navigate }) {
             </div>
           ))}
         </div>
-        {/* Back button centered */}
         <div className="flex justify-center mt-8">
           <button
             onClick={goBack}

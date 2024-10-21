@@ -14,23 +14,14 @@ const Home = ({ navigate, patientDetails, imageFolder }) => {
 
   useEffect(() => {
     if (patientDetails) {
-      if(doctors.includes(patientDetails.doctor_name)){
+      // Pre-fill form only for Review action (Doctor review)
       setFormData({
         patientNumber: patientDetails.patient_number || '',
         caseNumber: patientDetails.case_number || '',
         patientName: patientDetails.patient_name || '',
-        doctorName: patientDetails.doctor_name || ''
+        doctorName: doctors.includes(patientDetails.doctor_name) ? patientDetails.doctor_name : ''
       });
     }
-    else
-    {
-      setFormData({
-        patientNumber: patientDetails.patient_number || '',
-        caseNumber: patientDetails.case_number || '',
-        patientName: patientDetails.patient_name || '',
-      });
-    }
-  }
   }, [patientDetails]);
 
   const handleChange = (e) => {
@@ -75,7 +66,7 @@ const Home = ({ navigate, patientDetails, imageFolder }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            folder: imageFolder, // Pass the imageFolder
+            folder: imageFolder, // Pass the imageFolder if available
             details: {
               patient_number: formData.patientNumber,
               case_number: formData.caseNumber,
@@ -87,7 +78,14 @@ const Home = ({ navigate, patientDetails, imageFolder }) => {
   
         if (response.ok) {
           console.log('Metadata updated successfully');
-          navigate("/annotate", formData, imageFolder);
+          // Navigate based on user role and action
+          if (patientDetails) {
+            // If patientDetails exist, it's a Doctor Review case, go to /annotate
+            navigate("/annotate", formData, imageFolder);
+          } else {
+            // If no patientDetails, it's a Capture case, go to /capture
+            navigate("/capture", formData);
+          }
         } else {
           const errorResult = await response.json();
           console.error('Error updating metadata:', errorResult.error);

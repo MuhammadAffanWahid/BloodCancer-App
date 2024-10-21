@@ -1,84 +1,7 @@
-// import './App.css';
-// import './tailwind.css';
-// import ImageViewer from './ImageViewer';
-
-// function App() {
-//   return (
-//     <div className="App">
-//      <ImageViewer/>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
-
-// import React from "react";
-// import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import Home from "./Home";
-// import './tailwind.css';
-// import ImageViewer from './ImageViewer';
-
-// function App() {
-//   return (
-//     <BrowserRouter>
-//       <div>
-//         <div>
-//           <Routes>
-//             <Route path="/" element={<Home />} />
-//             <Route path="/annotate" element={<ImageViewer />} />
-//           </Routes>
-//         </div>
-//       </div>
-//     </BrowserRouter>
-//   );
-// }
-// export default App;
-
-// import React, { useState, useEffect } from "react";
-// import Home from "./Home";
-// import ImageViewer from "./ImageViewer";
-// import './tailwind.css';
-
-// function App() {
-//   const [route, setRoute] = useState(window.location.pathname);
-//   const [patientDetails, setPatientDetails] = useState(null);
-
-//   useEffect(() => {
-//     const handlePopState = () => {
-//       setRoute(window.location.pathname);
-//     };
-
-//     window.addEventListener("popstate", handlePopState);
-
-//     return () => {
-//       window.removeEventListener("popstate", handlePopState);
-//     };
-//   }, []);
-
-//   const navigate = (path, details = null) => {
-//     window.history.pushState({}, "", path);
-//     setRoute(path);
-//     if (details) {
-//       setPatientDetails(details); // Update the patient details
-//     }
-//   };
-//   return (
-//     <div className="App rounded-3xl">
-//         {route === "/" && <Home navigate={navigate} />}
-//         {route === "/annotate" && <ImageViewer patientDetails={patientDetails}/>}
-//       </div>
-//   );
-// }
-
-// export default App;
-
-
 import React, { useState, useEffect } from "react";
 import Home from "./Home";
 import ImageViewer from "./ImageViewer";
+import Capture from "./Capture"; 
 import Report from "./Report";
 import Dashboard from "./Dashboard";
 import './tailwind.css';
@@ -86,7 +9,7 @@ import './tailwind.css';
 function App() {
   const [route, setRoute] = useState(window.location.pathname);
   const [patientDetails, setPatientDetails] = useState(null);
-  const [imageFolder, setImageFolder] = useState(""); // State to store the image folder
+  const [imageFolder, setImageFolder] = useState("");
   const [isForward, setIsForward] = useState(false);
 
   useEffect(() => {
@@ -116,22 +39,28 @@ function App() {
     };
   }, []);
 
-  const navigate = (path, details = null, folder=null, isForward=false) => {
+  const navigate = (path, details = null, folder = null, isForward = false, clearPatientDetails = false) => {
     window.history.pushState({}, "", path);
     setRoute(path);
+
+    // If details are provided, update patientDetails and store them
     if (details) {
       setPatientDetails(details);
       localStorage.setItem('patientDetails', JSON.stringify(details));
+    } else if (clearPatientDetails) {
+      // Clear patientDetails for Technician or Capture flow
+      setPatientDetails(null);
+      localStorage.removeItem('patientDetails');
     }
 
+    // Store image folder if provided
     if (folder) {
       setImageFolder(folder);
       localStorage.setItem('imageFolder', folder);
     }
 
-      // Store isForward in local storage or state
-  setIsForward(isForward);
-  localStorage.setItem('isForward', isForward);
+    setIsForward(isForward);
+    localStorage.setItem('isForward', isForward);
   };
 
   return (
@@ -139,7 +68,8 @@ function App() {
       {route === "/" && <Dashboard navigate={navigate} />}
       {route === "/home" && <Home navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
       {route === "/annotate" && <ImageViewer navigate={navigate} patientDetails={patientDetails} imageFolder={imageFolder} />}
-      {route === "/report" && <Report patientDetails={patientDetails} isForward={isForward}/>}
+      {route === "/capture" && <Capture patientDetails={patientDetails}  navigate={navigate}  />}
+      {route === "/report" && <Report patientDetails={patientDetails} isForward={isForward} />}
     </div>
   );
 }
