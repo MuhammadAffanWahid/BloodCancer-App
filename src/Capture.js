@@ -30,7 +30,7 @@ const Capture = ({ patientDetails, navigate }) => {
 
       const newImage = canvas.toDataURL('image/png');
       setCapturedImages((prevImages) => [...prevImages, newImage]);
-      alert('Image Captured Successfully!');
+      // alert('Image Captured Successfully!');
     }
   };
 
@@ -62,10 +62,44 @@ const Capture = ({ patientDetails, navigate }) => {
   };
 
   // End the session and navigate to the home page
-  const handleFinishSession = () => {
-    alert('Session Finished!');
-    navigate('/');
-  };
+// Update the handleFinishSession function
+const handleFinishSession = async () => {
+  // const caseId = patientDetails.caseId; // Make sure this exists
+  // console.log("Captured images:", capturedImages); // Log captured images
+  // console.log("Case ID:", caseId); // Log caseId
+
+  // if (!caseId || !capturedImages.length) {
+  //   alert("Missing case ID or no images captured.");
+  //   return;
+  // }
+
+  // try {
+  //   const response = await fetch('http://localhost:4000/save-session', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       caseId,
+  //       images: capturedImages,
+  //     }),
+  //   });
+
+  //   const data = await response.json();
+  //   if (response.ok) {
+  //     alert("Session finished successfully!");
+  //     navigate('/');
+  //   } else {
+  //     alert(`Error: ${data.error}`);
+  //   }
+  // } catch (error) {
+  //   console.error("Error finishing session:", error);
+  //   alert("Failed to finish session. Please try again.");
+  // }
+  alert('Session Finished!');
+  navigate('/');
+};
+
 
   // Go back to capture mode
   const goBackToCapture = () => {
@@ -117,10 +151,12 @@ const Capture = ({ patientDetails, navigate }) => {
           <div className="mb-4">
             <img
               ref={imgRef}
-              width="640"
-              height="480"
+              crossOrigin="anonymous"
+              width="920"
+              height="690"
               className="border-2 border-gray-300 rounded-md"
               alt="Live Camera Feed"
+
             />
           </div>
 
@@ -153,7 +189,7 @@ const Capture = ({ patientDetails, navigate }) => {
             <img
               src={capturedImages[currentIndex]}
               alt={`Captured ${currentIndex}`}
-              className="w-96 h-96 border-2 border-gray-300 rounded-md"
+              className="h-96 border-2 border-gray-300 rounded-md"
             />
           </div>
 
@@ -207,6 +243,52 @@ const Capture = ({ patientDetails, navigate }) => {
 };
 
 export default Capture;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
