@@ -6,15 +6,9 @@ import medaiLogo from "./med-ai.png";
 import { ReactComponent as WhatsappSVG } from "./whatsapp.svg";
 import { ReactComponent as DownloadSVG } from "./download.svg";
 import { ReactComponent as EmailSVG } from "./email.svg";
-import image_0 from './backend/results/image_0.png'
-import image_1 from './backend/results/image_1.png'
-import image_2 from './backend/results/image_2.png'
-import image_3 from './backend/results/image_3.png'
-import image_4 from './backend/results/image_4.png'
 import axios from "axios";
 
-const images_diff = [ image_0, image_1, image_2, image_3, image_4
-];
+const images_diff = [];
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
@@ -129,10 +123,16 @@ const generatePDF = async () => {
       imgWidth = cellHeight * aspectRatio;
     }
 
-    const x = padding + (imageCount % gridColumns) * (cellWidth + padding) + (cellWidth - imgWidth) / 2;
-    const y = padding + Math.floor(imageCount / gridColumns) * (cellHeight + padding) + (cellHeight - imgHeight) / 2;
+    const x =
+      padding +
+      (imageCount % gridColumns) * (cellWidth + padding) +
+      (cellWidth - imgWidth) / 2;
+    const y =
+      padding +
+      Math.floor(imageCount / gridColumns) * (cellHeight + padding) +
+      (cellHeight - imgHeight) / 2;
 
-    pdf.addImage(img, "PNG", x+5, y, imgWidth-10, imgHeight);
+    pdf.addImage(img, "PNG", x + 5, y, imgWidth - 10, imgHeight);
     imageCount++;
   }
 
@@ -141,17 +141,17 @@ const generatePDF = async () => {
 
 const uploadPDF = async (filename) => {
   const pdf = await generatePDF();
-  const pdfData = pdf.output('datauristring').split(',')[1]; // Get base64 PDF content
+  const pdfData = pdf.output("datauristring").split(",")[1]; // Get base64 PDF content
 
-  const response = await axios.post('http://localhost:4000/upload-pdf', {
+  const response = await axios.post("http://localhost:4000/upload-pdf", {
     filename: `${filename}.pdf`,
-    content: pdfData
+    content: pdfData,
   });
 
   return response.data.link;
 };
 
-const Report = ({ patientDetails, imageFolder, isForward }) => {
+const Report = ({ patientDetails, isForward }) => {
   const [reportData, setReportData] = useState(null);
 
   useEffect(() => {
@@ -165,22 +165,28 @@ const Report = ({ patientDetails, imageFolder, isForward }) => {
 
   const handleSendWhatsApp = async () => {
     const link = await uploadPDF(`report_${patientDetails.case_number}`);
-    console.log("link: ", link)
+    console.log("link: ", link);
     const message = `Here is your report: ${link}`;
-    console.log("opening whatsapp")
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`);
-    console.log("opened whatsapp")
+    console.log("opening whatsapp");
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
+    );
+    console.log("opened whatsapp");
   };
 
   const handleSendEmail = async () => {
     const link = await uploadPDF(`report_${Date.now()}`);
     const subject = "Your Report";
     const body = `Here is your report: ${link}`;
-    window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    window.open(
+      `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+        body
+      )}`
+    );
   };
   useEffect(() => {
     // const isForward = JSON.parse(localStorage.getItem('isForward'));
-    
+
     if (isForward) {
       const scrollToButtons = () => {
         const buttonsElement = document.getElementById("share-buttons");
@@ -576,6 +582,5 @@ const whatsappButtonStyle = {
   ...buttonStyle,
   backgroundColor: "rgb(37,211,102)",
 };
-
 
 export default Report;

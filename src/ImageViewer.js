@@ -177,18 +177,23 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
 import ImageWithBoundingBoxes from "./ImageWithBoundingBoxes";
+import { useNavigate } from "react-router";
 
-const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
+const ImageViewer = () => {
   // State to manage the current image index, bounding boxes, images, and loading status
   const [currentIndex, setCurrentIndex] = useState(0);
   const [boundingBoxes, setBoundingBoxes] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  //TODO: FIX IT
+  const patientDetails = {};
 
   // Function to handle generating a report and navigating to the report page
   const handleGenerateReport = () => {
     console.log("handleGenerateReport");
-    navigate("/report", patientDetails, imageFolder, false);
+    navigate("/report");
   };
 
   // Function to update bounding boxes and save them in local storage
@@ -202,14 +207,13 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("imageFolder: ", imageFolder);
-
-        // Normalize the imageFolder string by removing leading and trailing slashes
-        const normalizedImageFolder = imageFolder.replace(/^\/|\/$/g, "");
-        
+        // TODO: ADD IMAGE FOLDER
+        const normalizedImageFolder = "";
         // Fetch images from the backend
         const imageResponse = await fetch(
-          `http://localhost:4000/images?folder=${encodeURIComponent(normalizedImageFolder)}`
+          `http://localhost:4000/images?folder=${encodeURIComponent(
+            normalizedImageFolder
+          )}`
         );
         const imageData = await imageResponse.json(); // Parse the JSON response
         console.log("Fetched images:", imageData.images); // Log fetched images
@@ -217,7 +221,9 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
 
         // Fetch CSV data from the backend
         const csvResponse = await fetch(
-          `http://localhost:4000/csv?folder=${encodeURIComponent(normalizedImageFolder)}`
+          `http://localhost:4000/csv?folder=${encodeURIComponent(
+            normalizedImageFolder
+          )}`
         );
         const csvData = await csvResponse.text(); // Get CSV data as text
         Papa.parse(csvData, {
@@ -236,7 +242,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
       }
     };
     fetchData(); // Call fetchData to execute the API calls
-  }, [imageFolder]); // Re-run effect if imageFolder changes
+  }, []); // Re-run effect if imageFolder changes
 
   // Effect to log the currently loaded image when currentIndex or images change
   useEffect(() => {
@@ -258,8 +264,8 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
         headers: {
           "Content-Type": "application/json",
         },
+        //TODO: Mark complete by case ID
         body: JSON.stringify({
-          folder: imageFolder, // Pass the imageFolder as the folder name
           status: "complete", // Set the status as 'complete'
         }),
       });
@@ -281,7 +287,7 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
 
   // Function to navigate to the report page with forward status
   const handleForward = () => {
-    navigate("/report", patientDetails, imageFolder, true);
+    navigate("/report");
   };
 
   // Function to go to the next image in the gallery
@@ -301,8 +307,8 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
   // Function to go to the previous image in the gallery
   const handlePrevious = () => {
     if (images.length > 0) {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === 0 ? images.length - 1 : prevIndex - 1 // Wrap around if at the beginning
+      setCurrentIndex(
+        (prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1) // Wrap around if at the beginning
       );
     } else {
       console.error("No images to navigate to."); // Log if there are no images
@@ -353,8 +359,12 @@ const ImageViewer = ({ navigate, patientDetails, imageFolder }) => {
             <h2 className="text-md font-bold">{patientDetails?.patientName}</h2>
           </div>
           <div className="flex flex-col items-center">
-            <h1 className="text-xl font-bold text-violet-500">Patient Number</h1>
-            <h2 className="text-md font-bold">{patientDetails?.patientNumber}</h2>
+            <h1 className="text-xl font-bold text-violet-500">
+              Patient Number
+            </h1>
+            <h2 className="text-md font-bold">
+              {patientDetails?.patientNumber}
+            </h2>
           </div>
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold text-violet-500">Case Number</h1>

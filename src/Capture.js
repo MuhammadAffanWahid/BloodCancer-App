@@ -1,11 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
-
-const Capture = ({ patientDetails, navigate }) => {
-  const [imageUrl, setImageUrl] = useState('');
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router";
+import Spinner from "./components/Spinner";
+import toast from "react-hot-toast";
+import { findMessage } from "./utils/helpers";
+const Capture = () => {
+  const [imageUrl, setImageUrl] = useState("");
   const [capturedImages, setCapturedImages] = useState([]);
   const [isReviewing, setIsReviewing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const imgRef = useRef(null);
+  const navigate = useNavigate();
+
+  const { caseNo = null } = useParams();
+
+  const [patientDetails, setPatientDetails] = useState(null);
+
+  useEffect(() => {
+    if (caseNo) {
+      fetch(`http://localhost:4000/get-case?case_number=${caseNo}`)
+        .then((response) => {
+          if (!response.ok) {
+            response
+              .json()
+              .then((data) =>
+                toast.error(findMessage(data, "Error fetching case data"))
+              );
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("X", data);
+          setPatientDetails(data);
+        })
+        .catch((error) => {
+          toast.error("Error fetching case data!");
+        });
+    }
+  }, [caseNo]);
 
   // Start the camera feed by setting the image src to the video URL
   const startCameraFeed = () => {
@@ -16,20 +47,25 @@ const Capture = ({ patientDetails, navigate }) => {
 
   // Capture an image from the live feed
   const captureImage = () => {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     const imgElement = imgRef.current;
-
+    if (imgElement.naturalWidth === 0)
+      return toast.error("Please select valid video source!");
     if (imgElement) {
       const imgWidth = imgElement.width;
       const imgHeight = imgElement.height;
       canvas.width = imgWidth;
       canvas.height = imgHeight;
 
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
       context.drawImage(imgElement, 0, 0, imgWidth, imgHeight);
 
-      const newImage = canvas.toDataURL('image/png');
+      const newImage = canvas.toDataURL("image/png");
       setCapturedImages((prevImages) => [...prevImages, newImage]);
+      toast.success(
+        "Captured image " + (capturedImages.length + 1) + " successfully!",
+        { duration: 1500 }
+      );
       // alert('Image Captured Successfully!');
     }
   };
@@ -49,7 +85,9 @@ const Capture = ({ patientDetails, navigate }) => {
 
   // Discard the current image during review
   const handleDiscardImage = () => {
-    const newImages = capturedImages.filter((_, index) => index !== currentIndex);
+    const newImages = capturedImages.filter(
+      (_, index) => index !== currentIndex
+    );
     setCapturedImages(newImages);
 
     if (newImages.length === 0) {
@@ -62,44 +100,35 @@ const Capture = ({ patientDetails, navigate }) => {
   };
 
   // End the session and navigate to the home page
-// Update the handleFinishSession function
-const handleFinishSession = async () => {
-  // const caseId = patientDetails.caseId; // Make sure this exists
-  // console.log("Captured images:", capturedImages); // Log captured images
-  // console.log("Case ID:", caseId); // Log caseId
+  // Update the handleFinishSession function
+  const handleFinishSession = async () => {
+    if (!caseNo || !capturedImages.length) {
+      return toast.error("Missing case number or images!");
+    }
 
-  // if (!caseId || !capturedImages.length) {
-  //   alert("Missing case ID or no images captured.");
-  //   return;
-  // }
+    try {
+      const response = await fetch("http://localhost:4000/save-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          case_number: caseNo,
+          images: capturedImages,
+        }),
+      });
 
-  // try {
-  //   const response = await fetch('http://localhost:4000/save-session', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       caseId,
-  //       images: capturedImages,
-  //     }),
-  //   });
-
-  //   const data = await response.json();
-  //   if (response.ok) {
-  //     alert("Session finished successfully!");
-  //     navigate('/');
-  //   } else {
-  //     alert(`Error: ${data.error}`);
-  //   }
-  // } catch (error) {
-  //   console.error("Error finishing session:", error);
-  //   alert("Failed to finish session. Please try again.");
-  // }
-  alert('Session Finished!');
-  navigate('/');
-};
-
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("Session saved successfully!");
+        navigate("/");
+      } else {
+        toast.error(findMessage(data), "Error saving session!");
+      }
+    } catch (error) {
+      toast.error("Error finishing session");
+    }
+  };
 
   // Go back to capture mode
   const goBackToCapture = () => {
@@ -110,25 +139,30 @@ const handleFinishSession = async () => {
   // Handle keyboard navigation for image review (arrow keys)
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         handleNextImage();
-      } else if (event.key === 'ArrowLeft') {
+      } else if (event.key === "ArrowLeft") {
         handlePreviousImage();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [capturedImages, currentIndex]);
 
+  if (!patientDetails) return <Spinner />;
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-purple-200 to-purple-400">
       {!isReviewing && (
         <>
-          <h2 className="text-2xl font-bold mb-6 text-center text-purple-700">Capture Images</h2>
-          <p className="text-lg text-center mb-4">Patient: {patientDetails.patientName}</p>
+          <h2 className="text-2xl font-bold mb-6 text-center text-purple-700">
+            Capture Images
+          </h2>
+          <p className="text-lg text-center mb-4">
+            Patient: {patientDetails.patient_name}
+          </p>
 
           {/* IP Camera URL Input */}
           <div className="flex justify-center mb-4 w-full max-w-lg">
@@ -156,7 +190,6 @@ const handleFinishSession = async () => {
               height="690"
               className="border-2 border-gray-300 rounded-md"
               alt="Live Camera Feed"
-
             />
           </div>
 
@@ -182,7 +215,9 @@ const handleFinishSession = async () => {
 
       {isReviewing && capturedImages.length > 0 && (
         <>
-          <h2 className="text-2xl font-bold mb-6 text-center text-purple-700">Review Captured Images</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center text-purple-700">
+            Review Captured Images
+          </h2>
 
           {/* Display Current Image */}
           <div className="mb-4 flex flex-col items-center">
@@ -199,7 +234,9 @@ const handleFinishSession = async () => {
               onClick={handlePreviousImage}
               disabled={currentIndex === 0}
               className={`${
-                currentIndex === 0 ? 'bg-gray-400 hover:bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'
+                currentIndex === 0
+                  ? "bg-gray-400 hover:bg-gray-400"
+                  : "bg-blue-500 hover:bg-blue-700"
               } text-white font-bold py-2 px-4 rounded-md`}
             >
               Previous
@@ -208,7 +245,9 @@ const handleFinishSession = async () => {
               onClick={handleNextImage}
               disabled={currentIndex === capturedImages.length - 1}
               className={`${
-                currentIndex === capturedImages.length - 1 ? 'bg-gray-400 hover:bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'
+                currentIndex === capturedImages.length - 1
+                  ? "bg-gray-400 hover:bg-gray-400"
+                  : "bg-blue-500 hover:bg-blue-700"
               } text-white font-bold py-2 px-4 rounded-md`}
             >
               Next
@@ -243,52 +282,6 @@ const handleFinishSession = async () => {
 };
 
 export default Capture;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
