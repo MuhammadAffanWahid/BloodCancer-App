@@ -1,70 +1,136 @@
-# Getting Started with Create React App
+# BloodCancer-App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React and Flask-based web application for collecting the blood cells dataset with the assistance of AI.
 
-## Available Scripts
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Running the Application](#running-the-application)
+- [Technologies Used](#technologies-used)
+- [Contributing](#contributing)
+- [License](#license)
 
-In the project directory, you can run:
+## Prerequisites
 
-### `npm start`
+Before you begin, ensure you have the following installed:
+- **Node.js** (v16 or higher): [Download Node.js](https://nodejs.org/)
+- **Python** (v3.8 or higher): [Download Python](https://www.python.org/)
+- **Git**: [Download Git](https://git-scm.com/)
+- **VSCode**: [Download VSCode](https://code.visualstudio.com/download)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Follow the steps below to download and set up the project.
 
-### `npm test`
+### 1. Clone the Repository
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Open vscode in your desired folder and then open the termianl with `Ctrl+J` and type the folling command:
 
-### `npm run build`
+```bash
+git clone https://github.com/MuhammadAffanWahid/BloodCancer-App.git
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Frontend Setup
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Navigate to the `BloodCancer-App` directory and install the dependencies:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+cd BloodCancer-App
+npm install
+```
 
-### `npm run eject`
+This will install all the Node.js packages listed in the `package.json` file.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Backend Setup
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Navigate to the `backend` directory and set up a virtual environment for Python:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+cd src/backend
+python -m venv venv
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Activate the virtual environment:
 
-## Learn More
+- On **Windows**:
+  ```bash
+  venv\Scripts\activate
+  ```
+- On **macOS/Linux**:
+  ```bash
+  source venv/bin/activate
+  ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Install the Python dependencies:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+pip install -r requirements.txt
+```
 
-### Code Splitting
+### 4. Google API Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+This project interacts with Google APIs. You'll need to set up credentials for the Google Cloud APIs and add them to your backend environment.
 
-### Analyzing the Bundle Size
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a project, enable the required APIs (e.g., Google Drive API), and generate OAuth 2.0 credentials.
+3. Download the `credentials.json` file and place it in the backend directory.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 5. Configure Environment Variables
 
-### Making a Progressive Web App
+In the backend directory, create a `.env` file with the following structure:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```env
+GOOGLE_CLIENT_ID=<Your-Google-Client-ID>
+GOOGLE_CLIENT_SECRET=<Your-Google-Client-Secret>
+FLASK_APP=app.py
+FLASK_ENV=development
+```
 
-### Advanced Configuration
+Replace `<Your-Google-Client-ID>` and `<Your-Google-Client-Secret>` with your actual credentials.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Running the Application
 
-### Deployment
+### 1. Running the Frontend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+In a new terminal window, navigate to the `BloodCancer-App` directory and run:
 
-### `npm run build` fails to minify
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This will start the React development server. The frontend will be available on `http://localhost:3000/`.
+
+
+### 2. Running the Backend
+
+From the `backend` directory, ensure your virtual environment is activated, then start the Flask server:
+
+```bash
+python3 server.py
+```
+
+By default, the backend will run on `http://127.0.0.1:5000/`.
+
+
+### 3. Access the Application
+
+Open your browser and go to `http://localhost:3000/` to view the app.
+
+## Technologies Used
+
+- **Frontend**: React, html2canvas, jsPDF
+- **Backend**: Flask, pandas, Google APIs
+- **Other**: Axios for API requests, Tailwind CSS for styling, Webpack for bundling
+
+## Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes.
+4. Submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
