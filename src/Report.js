@@ -7,8 +7,11 @@ import { ReactComponent as WhatsappSVG } from "./whatsapp.svg";
 import { ReactComponent as DownloadSVG } from "./download.svg";
 import { ReactComponent as EmailSVG } from "./email.svg";
 import axios from "axios";
+import { useLocation, useParams } from "react-router";
+import toast from "react-hot-toast";
+import { findMessage } from "./utils/helpers";
+import Spinner from "./components/Spinner";
 
-const images_diff = [];
 const generateReportData = (data) => {
   const mapping = {
     "Nuclear Chromatin": { 0: "Open", 1: "Coarse" },
@@ -52,26 +55,17 @@ const generateReportData = (data) => {
     count: predictionCounts[key],
     percentage: ((predictionCounts[key] / totalSamples) * 100).toFixed(1),
   }));
-  console.log(
-    "mappedData: ",
-    mappedData,
-    "\ncounts: ",
-    counts,
-    "\npredictionPercentages: ",
-    predictionPercentages,
-    "\ntotalSamples",
-    totalSamples
-  );
 
   return { mappedData, counts, predictionPercentages, totalSamples };
 };
 
-const downloadPDF = async () => {
-  const pdf = await generatePDF();
+const downloadPDF = async (images) => {
+  const pdf = await generatePDF(images);
   pdf.save("report.pdf");
 };
 
-const generatePDF = async () => {
+const generatePDF = async (images) => {
+  images = [];
   const reportContent = document.getElementById("report-content");
   const canvas = await html2canvas(reportContent);
   const pdf = new jsPDF("p", "pt", "a4");
@@ -105,13 +99,13 @@ const generatePDF = async () => {
     });
   };
 
-  for (let i = 0; i < images_diff.length; i++) {
+  for (let i = 0; i < images.length; i++) {
     if (imageCount === imagesPerPage) {
       pdf.addPage();
       imageCount = 0;
     }
 
-    const img = await loadImage(images_diff[i]);
+    const img = await loadImage(images[i]);
     const aspectRatio = img.width / img.height;
     let imgWidth, imgHeight;
 
@@ -139,9 +133,9 @@ const generatePDF = async () => {
   return pdf;
 };
 
-const uploadPDF = async (filename) => {
-  const pdf = await generatePDF();
-  const pdfData = pdf.output("datauristring").split(",")[1]; // Get base64 PDF content
+const uploadPDF = async (filename, images) => {
+  const pdf = await generatePDF(images);
+  const pdfData = pdf.output("datauristring").split(",")[1];
 
   const response = await axios.post("http://localhost:4000/upload-pdf", {
     filename: `${filename}.pdf`,
@@ -151,20 +145,85 @@ const uploadPDF = async (filename) => {
   return response.data.link;
 };
 
-const Report = ({ patientDetails, isForward }) => {
+const Report = () => {
   const [reportData, setReportData] = useState(null);
+  const [patientDetails, setPatientDetails] = useState(null);
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState(null);
+
+  const { caseNo = null } = useParams();
 
   useEffect(() => {
-    const storedData = localStorage.getItem("csvData"); // Assume data is stored as a JSON string
+    const storedData = localStorage.getItem("csvData");
     if (storedData) {
       const data = JSON.parse(storedData);
       const generatedReportData = generateReportData(data);
       setReportData(generatedReportData);
     }
-  }, []);
+  }, [caseNo]);
 
-  const handleSendWhatsApp = async () => {
-    const link = await uploadPDF(`report_${patientDetails.case_number}`);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch images from the backend
+        const imageResponse = await fetch(
+          `http://localhost:4000/diff-images?case_number=${encodeURIComponent(
+            caseNo
+          )}`
+        );
+        const imageData = await imageResponse.json(); // Parse the JSON response
+        if (!imageResponse.ok) {
+          return toast.error(findMessage(imageData, "Error fetching images!"));
+        }
+        setImages(
+          imageData.images.map(
+            (image) => `http://localhost:4000/image/${caseNo}/${image}`
+          )
+        ); // Update images state
+        setPatientDetails(imageData.case_details);
+
+        // Set loading to false after fetching data
+      } catch (error) {}
+    };
+    if (caseNo) fetchData(); // Call fetchData to execute the API calls
+  }, [caseNo]);
+
+  // useEffect(() => {
+  //   if (caseNo) {
+  //     fetch(`http://localhost:4000/get-case?case_number=${caseNo}`)
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           response
+  //             .json()
+  //             .then((data) =>
+  //               toast.error(findMessage(data, "Error fetching case data"))
+  //             );
+  //         }
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         setPatientDetails(data);
+  //       })
+  //       .catch((error) => {
+  //         toast.error("Error fetching case data!");
+  //       });
+  //   }
+  // }, [caseNo]);
+
+  const handleSendWhatsApp = async (images) => {
+    if (loading) return;
+    setLoading(true);
+    const link = await toast.promise(
+      uploadPDF(
+        `report_${
+          patientDetails.case_number + "-" + patientDetails.patient_number
+        }`,
+        images
+      ),
+      { loading: "Uploading documents", success: "Uploaded documents!" }
+    );
+    setLoading(false);
     console.log("link: ", link);
     const message = `Here is your report: ${link}`;
     console.log("opening whatsapp");
@@ -174,20 +233,33 @@ const Report = ({ patientDetails, isForward }) => {
     console.log("opened whatsapp");
   };
 
-  const handleSendEmail = async () => {
-    const link = await uploadPDF(`report_${Date.now()}`);
+  const handleSendEmail = async (images) => {
+    if (loading) return;
+    setLoading(true);
+    const link = await toast.promise(
+      uploadPDF(
+        `report_${
+          patientDetails.case_number + "-" + patientDetails.patient_number
+        }`,
+        images
+      ),
+      { loading: "Uploading documents", success: "Uploaded documents!" }
+    );
+    setLoading(false);
     const subject = "Your Report";
     const body = `Here is your report: ${link}`;
-    window.open(
-      `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-        body
-      )}`
-    );
-  };
-  useEffect(() => {
-    // const isForward = JSON.parse(localStorage.getItem('isForward'));
+    location.href = `mailto:?subject=${encodeURIComponent(
+      "Test"
+    )}&body=${encodeURIComponent("dsds  ")}`;
 
-    if (isForward) {
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+  };
+
+  useEffect(() => {
+    if (location.hash === "#forward") {
       const scrollToButtons = () => {
         const buttonsElement = document.getElementById("share-buttons");
         if (buttonsElement) {
@@ -195,12 +267,9 @@ const Report = ({ patientDetails, isForward }) => {
         }
       };
 
-      // Delay the scroll to ensure the content is rendered
       setTimeout(scrollToButtons, 300);
     }
-  }, []);
-
-  console.log("reportData: ", reportData);
+  }, [location.hash]);
 
   const getCurrentTime = () => {
     var currentdate = new Date();
@@ -219,15 +288,13 @@ const Report = ({ patientDetails, isForward }) => {
     return datetime;
   };
 
-  if (!reportData) {
-    return <div>Loading...</div>;
+  if (!reportData || !patientDetails) {
+    return <Spinner />;
   }
 
   const { totalSamples } = reportData;
 
-  return !reportData ? (
-    <div>Loading...</div>
-  ) : (
+  return (
     <>
       <div className="report-container rounded-md" id="report-content">
         <div className="header flex flex-col items-center">
@@ -249,7 +316,7 @@ const Report = ({ patientDetails, isForward }) => {
         <div className="patient-details">
           <div>
             <p>
-              <strong>Patient Details:</strong> {patientDetails.patientName}
+              <strong>Patient Details:</strong> {patientDetails.patient_name}
             </p>
             <p>
               <strong>Age:</strong> XX Yrs
@@ -272,13 +339,13 @@ const Report = ({ patientDetails, isForward }) => {
               <strong>Reference:</strong> Standard
             </p>
             <p>
-              <strong>Doctor:</strong> {patientDetails.doctorName}
+              <strong>Doctor:</strong> {patientDetails.doctor_name}
             </p>
             <p>
-              <strong>Patient Number:</strong> {patientDetails.patientNumber}
+              <strong>Patient Number:</strong> {patientDetails.patient_name}
             </p>
             <p>
-              <strong>Case Number:</strong> {patientDetails.caseNumber}
+              <strong>Case Number:</strong> {patientDetails.case_number}
             </p>
           </div>
         </div>
@@ -548,13 +615,19 @@ const Report = ({ patientDetails, isForward }) => {
         </div> */}
       </div>
       <div className="flex justify-center mt-4 pb-20" id="share-buttons">
-        <button onClick={downloadPDF} style={buttonStyle}>
+        <button onClick={() => downloadPDF(images)} style={buttonStyle}>
           <DownloadSVG width={24} height={24} />
         </button>
-        <button onClick={handleSendEmail} style={emailButtonStyle}>
+        <button
+          onClick={() => handleSendEmail(images)}
+          style={emailButtonStyle}
+        >
           <EmailSVG width={24} height={24} />
         </button>
-        <button onClick={handleSendWhatsApp} style={whatsappButtonStyle}>
+        <button
+          onClick={() => handleSendWhatsApp(images)}
+          style={whatsappButtonStyle}
+        >
           <WhatsappSVG width={24} height={24} />
         </button>
       </div>

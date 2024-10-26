@@ -35,16 +35,10 @@ function Dashboard() {
   const handleDoctorAction = (action) => {
     if (action === "Capture") {
       // Clear patientDetails when Doctor selects Capture
-      navigate("/home"); // Navigate and clear patient details
+      navigate("/newCase"); // Navigate and clear patient details
     } else if (action === "Review") {
-      setDoctorAction("Review"); // Set doctor action to Review
+      navigate("/cases"); // Set doctor action to Review
     }
-  };
-
-  // Handle folder selection
-  const handleFolderClick = (folder) => {
-    // Retain patientDetails when selecting a patient card in Review mode
-    navigate("/home"); // Navigate to home with folder details
   };
 
   // Go back to the previous selection
@@ -104,59 +98,6 @@ function Dashboard() {
         >
           Back
         </button>
-      </div>
-    );
-  }
-
-  // If doctor action is 'Review', display the patient folders
-  if (doctorAction === "Review") {
-    return (
-      <div className="p-4 min-h-screen bg-gradient-to-r from-purple-200 to-purple-400">
-        <h1 className="text-4xl font-bold mb-8 text-center text-purple-700">
-          Patient Folders
-        </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {folders.map((folder) => (
-            <div
-              key={folder.name} // Unique key for each folder
-              onClick={() => handleFolderClick(folder)} // Handle folder click
-              className={`cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl p-6 rounded-lg shadow-lg text-center text-white font-semibold text-xl ${
-                folder.metadata.status === "complete"
-                  ? "bg-green-500"
-                  : "bg-red-500"
-              }`}
-            >
-              <div className="bg-white text-black p-4 rounded mb-4 shadow">
-                <h2 className="font-bold text-2xl">
-                  {folder.metadata.patient_name}
-                </h2>
-                <p className="text-lg">{folder.metadata.patient_number}</p>
-              </div>
-              <div className="text-left text-lg">
-                <p>
-                  <span className="font-bold">Case Number:</span>{" "}
-                  {folder.metadata.case_number}
-                </p>
-                <p>
-                  <span className="font-bold">Doctor:</span>{" "}
-                  {folder.metadata.doctor_name}
-                </p>
-                <p>
-                  <span className="font-bold">Status:</span>{" "}
-                  {folder.metadata.status}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={goBack} // Go back to previous selection
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transform transition-transform duration-300 ease-in-out hover:scale-105"
-          >
-            Back
-          </button>
-        </div>
       </div>
     );
   }

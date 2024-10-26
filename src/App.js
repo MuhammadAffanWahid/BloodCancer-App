@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./tailwind.css"; // Tailwind CSS for styling
 import NewCase from "./pages/NewCase";
 import { Toaster } from "react-hot-toast";
+import Cases from "./pages/Cases";
 
 function App() {
   return (
@@ -17,10 +18,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />}></Route>
           <Route path="/newCase" element={<NewCase />}></Route>
+          <Route path="/cases" element={<Cases />}></Route>
           <Route path="/home" element={<Home />}></Route>
-          <Route path="/annotate" element={<ImageViewer />}></Route>
+          <Route path="/annotate/:caseNo" element={<ImageViewer />}></Route>
           <Route path="/capture/:caseNo" element={<Capture />}></Route>
-          <Route path="/report" element={<Report />}></Route>
+          <Route path="/report/:caseNo" element={<Report />}></Route>
         </Routes>
       </Router>
     </div>

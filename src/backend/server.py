@@ -213,6 +213,9 @@ def upload_pdf():
         file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         file_id = file.get('id')
         drive_link = f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
+        for f in os.listdir("temp"):
+            if f.endswith('.pdf'):
+                os.remove(os.path.join("temp", f))
         return jsonify({'message': 'PDF uploaded successfully', 'link': drive_link}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
