@@ -7,16 +7,15 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-
-
-
-
 from flask import Flask, request, jsonify, send_file, send_from_directory, g
 from flask_cors import CORS
 import os
 import base64
-
-
+import json
+import queue
+import time
+from model import *
+import threading
 
 import sqlite3
 import os
@@ -24,8 +23,7 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-results_dir = './results'
-data_dir = './data'
+case_queue = queue.Queue()
 
 DATABASE = 'patients.db'
 
@@ -148,60 +146,58 @@ def clear_patient_table():
         db.execute('DELETE FROM patient')  # Clear all records from the patient table
         db.commit()
 
+def authorize_and_save_credentials():
+    client_secret_path = os.path.join(os.path.dirname(__file__), 'client_secret.json')
+    flow = InstalledAppFlow.from_client_secrets_file(
+        client_secret_path, SCOPES,redirect_uri=redirect_uri)  # Ensure you have client_secret.json for initial authorization
+    creds = flow.run_local_server(port=5000)  # This will open a browser for user authorization
+    save_credentials(creds)
 
-{# def authorize_and_save_credentials():
-#     flow = InstalledAppFlow.from_client_secrets_file(
-#         'client_secret.json', SCOPES,redirect_uri=redirect_uri)  # Ensure you have client_secret.json for initial authorization
-#     creds = flow.run_local_server(port=5000)  # This will open a browser for user authorization
-#     save_credentials(creds)
+def refresh_and_save_credentials():
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+        save_credentials(creds)
+        print("Credentials have been refreshed and saved.")
+    else:
+        print("Credentials are valid.")
 
-# def refresh_and_save_credentials():
-#     if creds and creds.expired and creds.refresh_token:
-#         creds.refresh(Request())
-#         save_credentials(creds)
-#         print("Credentials have been refreshed and saved.")
-#     else:
-#         print("Credentials are valid.")
+def process_queue():
+    print("IN",case_queue)
+    with app.app_context():  # Create an application context for the thread
+        while True:
+            # Get the case number from the queue
+            case_number = case_queue.get()
+            if case_number is None:
+                time.sleep(5)
+                continue
+            try:
+                process_images(case_number)  # Process images for the case
+                update_image_status(case_number, "completed")  # Update the status
+                time.sleep(2)  # Simulating time-consuming task
+            finally:
+                # Indicate that the task is done
+                case_queue.task_done()
 
-# if os.path.exists('cred.json'):
-#     try:
-#         with open('cred.json', 'r') as token:
-#             creds_data = json.load(token)
-#             creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
-#         # Refresh credentials if needed
-#         refresh_and_save_credentials()
-#     except Exception as e:
-#         print(f"Error loading credentials: {e}")
-#         # If error, it might be due to missing refresh token, authorize again
-#         authorize_and_save_credentials()
-# else:
-#     print("No credentials file found. Initiating authorization.")
-#     authorize_and_save_credentials()
-}
-
-# Takes in the image, case number and index of image and save it to corresponding dir
-# @app.route('/save-image', methods=['POST'])
-# def save_image():
-#     data = request.json
-#     image_data = data['image']
-#     case_no = data['case_no']
-#     index=data['image_index']
-
-#     # Decode the base64 image data
-#     image_data = base64.b64decode(image_data.split(',')[1])
-#     image_path = os.path.join(results_dir, image_name)
-
-#     with open(image_path, 'wb') as f:
-#         f.write(image_data)
-
-#     return jsonify({'message': 'Image saved successfully'}), 200
+if os.path.exists('cred.json'):
+    try:
+        with open('cred.json', 'r') as token:
+            creds_data = json.load(token)
+            creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
+        # Refresh credentials if needed
+        refresh_and_save_credentials()
+    except Exception as e:
+        print(f"Error loading credentials: {e}")
+        # If error, it might be due to missing refresh token, authorize again
+else:
+    print("No credentials file found. Initiating authorization.")
+    authorize_and_save_credentials()
 
 @app.route('/upload-pdf', methods=['POST'])
 def upload_pdf():
-    print("inside upload pdf")
     pdf_data = request.json
-    pdf_path = os.path.join(results_dir, pdf_data['filename'])
+    pdf_path = os.path.join("temp", pdf_data['filename'])
 
+    os.makedirs("temp", exist_ok=True)
     with open(pdf_path, 'wb') as f:
         f.write(base64.b64decode(pdf_data['content']))
 
@@ -220,134 +216,6 @@ def upload_pdf():
         return jsonify({'message': 'PDF uploaded successfully', 'link': drive_link}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-# @app.route('/images', methods=['GET'])
-# def get_images():
-#     folder = request.args.get('folder') or 'P1'
-#     print("folder: ", folder)
-    
-#     folder_path = os.path.join(data_dir, folder)
-#     print("folder_path: ", folder_path)
-#     try:
-#         images = [
-#             {'src': f'/image/{folder}/{file}', 'name': file}
-#             for file in os.listdir(folder_path)
-#             if file.endswith(('.png', '.jpg', '.jpeg', '.svg'))
-#         ]
-#         print("images: ", images)
-#         return jsonify({'images': images}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-# @app.route('/folders', methods=['GET'])
-# def get_folders():
-#     try:
-#         folders = []
-#         for folder in os.listdir(data_dir):
-#             folder_path = os.path.join(data_dir, folder)
-#             if os.path.isdir(folder_path):
-#                 metadata_path = os.path.join(folder_path, 'metadata.csv')
-#                 if os.path.exists(metadata_path):
-#                     metadata_df = pd.read_csv(metadata_path)
-#                     status = metadata_df['status'].iloc[0]  # Assuming status is the first row
-#                     folders.append({
-#                         'name': folder,
-#                         'status': status,
-#                         'metadata': metadata_df.to_dict(orient='records')[0]  # Passing entire metadata
-#                     })
-#         return jsonify(folders), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-    
-# @app.route('/update-status', methods=['POST'])
-# def update_status():
-#     data = request.json
-#     folder = data.get('folder')
-#     new_status = data.get('status', 'complete')
-
-#     metadata_path = os.path.join(data_dir, folder, 'metadata.csv')
-
-#     if not os.path.exists(metadata_path):
-#         return jsonify({'error': f'metadata.csv not found in folder {folder}'}), 404
-
-#     try:
-#         # Load the metadata.csv file
-#         metadata_df = pd.read_csv(metadata_path)
-
-#         # Update the status column
-#         metadata_df['status'] = new_status
-
-#         # Save the updated CSV
-#         metadata_df.to_csv(metadata_path, index=False)
-
-#         return jsonify({'message': f'Status updated to {new_status} in folder {folder}'}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-# @app.route('/update-metadata', methods=['POST'])
-# def update_metadata():
-#     data = request.json
-#     folder = data.get('folder')
-#     updated_details = data.get('details')
-
-#     metadata_path = os.path.join(data_dir, folder, 'metadata.csv')
-
-#     if not os.path.exists(metadata_path):
-#         return jsonify({'error': f'metadata.csv not found in folder {folder}'}), 404
-
-#     try:
-#         # Load the metadata.csv file
-#         metadata_df = pd.read_csv(metadata_path)
-
-#         # Update the specific fields with the new details
-#         if 'patient_number' in updated_details:
-#             metadata_df['patient_number'] = updated_details['patient_number']
-#         if 'case_number' in updated_details:
-#             metadata_df['case_number'] = updated_details['case_number']
-#         if 'patient_name' in updated_details:
-#             metadata_df['patient_name'] = updated_details['patient_name']
-#         if 'doctor_name' in updated_details:
-#             metadata_df['doctor_name'] = updated_details['doctor_name']
-
-#         # Save the updated CSV
-#         metadata_df.to_csv(metadata_path, index=False)
-
-#         return jsonify({'message': 'Metadata updated successfully'}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-# @app.route('/save-session', methods=['POST'])
-# def save_session():
-#     data = request.json
-        
-#     print("Request Data:", data)  # Debugging: print the incoming data
-
-#     if 'caseId' not in data:
-#         return jsonify({'error': 'caseId is missing from the request'}), 400
-
-
-#     case_id = data['caseId']
-#     images = data['images']  # This will be a list of base64 encoded images
-
-#     # Create a directory with the case_id inside 'unprocessed' folder
-#     folder_path = os.path.join('unprocessed', case_id)
-#     if not os.path.exists(folder_path):
-#         os.makedirs(folder_path)
-
-#     # Loop through the images and save them as image_0.png, image_1.png, etc.
-#     for index, image_data in enumerate(images):
-#         image_data = base64.b64decode(image_data.split(',')[1])  # Decode base64 image
-#         image_name = f'image_{index}.png'  # Name the images sequentially
-#         image_path = os.path.join(folder_path, image_name)
-
-#         with open(image_path, 'wb') as img_file:
-#             img_file.write(image_data)
-
-#     return jsonify({'message': 'Session saved successfully!'}), 200
-
-
-
-
 
 
 @app.route('/create-case', methods=['POST'])
@@ -416,8 +284,8 @@ def get_case():
 def save_image():
     data = request.json
     image_data = data['image']
-    case_no = data['case_no']
-    index = data['image_index']
+    case_no = data['case_number']
+    image_name = data['name']
 
     # Create the directory for the specific case number if it doesn't exist
     case_dir = os.path.join("images", case_no)
@@ -427,7 +295,7 @@ def save_image():
     image_data = base64.b64decode(image_data.split(',')[1])
     
     # Save the image with the index as the filename
-    image_path = os.path.join(case_dir, f"{index}.png")
+    image_path = os.path.join(case_dir, "edited_"+image_name)
 
     with open(image_path, 'wb') as f:
         f.write(image_data)
@@ -441,6 +309,7 @@ def get_images():
     if not case_number:
         return jsonify({"error": "case_number is required"}), 400
 
+    caseData=get_patient_by_case_number(case_number)
     # Construct the directory path for the specified case number
     case_dir = os.path.join("images", case_number)
 
@@ -451,11 +320,11 @@ def get_images():
     # List all image files in the case directory
     images = []
     for filename in os.listdir(case_dir):
-        if filename.endswith(('.png', '.jpg', '.jpeg')):  # Check for image file types
+        if filename.endswith(('.png', '.jpg', '.jpeg')) and filename.startswith('image'):  # Check for image file types
             images.append(filename)
 
     # Return the list of image file names
-    return jsonify({"case_number": case_number, "images": images}), 200
+    return jsonify({"case_number": case_number, "images": images,"case_details":caseData}), 200
 
 @app.route('/image/<case>/<filename>', methods=['GET'])
 def get_image(case, filename):
@@ -535,14 +404,44 @@ def save_session():
     for index, image_data in enumerate(images):
         # Decode base64 image
         image_data = base64.b64decode(image_data.split(',')[1])  
-        image_name = f'{index + 1}.png'  # Name the images sequentially starting from 1
+        image_name = f'image_{index}.png'  # Name the images sequentially starting from image_0
         image_path = os.path.join(folder_path, image_name)
 
         with open(image_path, 'wb') as img_file:
             img_file.write(image_data)
 
+    case_queue.put(case_number)
+
     return jsonify({'message': 'Session saved successfully!'}), 200
+
+@app.route('/diff-images', methods=['GET'])
+def get_diff_images():
+    case_number = request.args.get('case_number')
+
+    if not case_number:
+        return jsonify({"error": "case_number is required"}), 400
+
+    caseData=get_patient_by_case_number(case_number)
+
+    # Construct the directory path for the specified case number
+    case_dir = os.path.join("images", case_number)
+
+    # Check if the directory exists
+    if not os.path.exists(case_dir):
+        return jsonify({"error": "Case not found"}), 404
+
+    # List all image files in the case directory
+    images = []
+    for filename in os.listdir(case_dir):
+        if filename.endswith(('.png', '.jpg', '.jpeg')) and filename.startswith('edited'):  # Check for image file types
+            images.append(filename)
+
+    # Return the list of image file names
+    return jsonify({"case_number": case_number, "images": images,"case_details":caseData}), 200
+
 
 if __name__ == '__main__':
     init_db()
+    os.makedirs("images", exist_ok=True)
+    threading.Thread(target=process_queue, daemon=True).start()
     app.run(port=4000, debug=True)
